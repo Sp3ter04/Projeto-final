@@ -11,6 +11,8 @@ WAITER_SPEED = 100
 
 TOLERANCE = 0.5
 
+obstacle_list = []
+
 def get_distance(p1, p2):
     delta_x = p1.getX() - p2.getX()
     delta_y = p1.getY() - p2.getY()
@@ -82,8 +84,9 @@ class Waiter3(Waiter):
 
 
 class Obstacle:
-    def __init__(self, coords):
-        self.coords = coords
+    def __init__(self, anchor):
+        self.coords = anchor
+        obstacle_list.append(self)
 
     def draw(self, win):
         self.draw(win)
@@ -96,16 +99,16 @@ class Obstacle:
 
 
 class Table(Obstacle):
-    def __init__(self, coords):
+    def __init__(self, anchor):
+        super().__init__(anchor)
         self.shape = "circle"
-        super().__init__(coords)
         pass
 
 
 class Chair(Obstacle):
-    def __init__(self, coords):
+    def __init__(self, anchor):
+        super().__init__(anchor)
         self.shape = "square"
-        super().__init__(coords)
         pass
 
 
