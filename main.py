@@ -20,7 +20,7 @@ CHAIR_SIDE = 6
 CHAIR_COLOR = "green"
 
 WAITER_COLOR = "blue"
-WAITER_RADIUS = 4
+WAITER_RADIUS = 3
 WAITER_ANCHOR = (6, 6)
 WAITER_SPEED = 100
 
@@ -68,7 +68,7 @@ def main():
                 waiter.move(Point(point.x_coord + WAITER_RADIUS / 4, point.y_coord + WAITER_RADIUS / 4))
             waiter.move(mouse_click)
         except:
-            error_message = Text(Point(50, 94), "Invalid Input")
+            error_message = Text(Point(50, 94), "Target Cannot be Reached")
             error_message.draw(win)
             time.sleep(0.8)
             error_message.undraw()

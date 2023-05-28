@@ -1,6 +1,6 @@
-from numpy import *
 from queue import PriorityQueue
 from graphics import *
+from math import sqrt
 
 class Spot:
     def __init__(self, row, col, cell_width, num_rows):
@@ -126,7 +126,7 @@ class Spot:
                     
         if len(occupation) != 0:
             self.obstacle_spot()
-            self.get_square(win)
+            #self.get_square(win)
             
 
                                 
