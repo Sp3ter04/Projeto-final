@@ -1,6 +1,6 @@
 from queue import PriorityQueue
 from graphics import *
-from math import sqrt
+from universal_functions import *
 
 class Spot:
     def __init__(self, row, col, cell_width, num_rows):
@@ -20,18 +20,6 @@ class Spot:
 
     def get_coords(self):
         return self.row, self.col
-
-    def close_spot(self):
-        self.state = "closed"
-
-    def ask_closed(self):
-        return self.state == "closed"
-        
-    def open_spot(self):
-        self.state = "open"
-
-    def ask_open(self):
-        return self.state == "open"
         
     def obstacle_spot(self):
         self.state = "obstacle"
@@ -39,23 +27,8 @@ class Spot:
     def ask_obstacle(self):
         return self.state == "obstacle"
         
-    def start_spot(self):
-        self.state = "start"
-
-    def ask_start(self):
-        return self.state == "start"
-        
-    def end_spot(self):
-        self.state = "end"
-        
-    def ask_end(self):
-        return self.state == "end"
-        
     def reset(self):
         self.state = "unchecked"
-
-    def path_spot(self):
-        self.state = "path"
 
     def get_square(self, win):
         square = Rectangle(Point(self.x_coord, self.y_coord), 
@@ -121,20 +94,15 @@ class Spot:
                     occupation.append(obstacle)
             elif obstacle.shape == "circle":
                 if circle_square_interception((self.x_coord, self.y_coord), self.width, 
-                            (obstacle.anchor.getX(), obstacle.anchor.getY()), obstacle.radius, self.width * 1.7):
+                                            (obstacle.anchor.getX(), obstacle.anchor.getY()), 
+                                            obstacle.radius, self.width * 1.7):
                     occupation.append(obstacle)
                     
         if len(occupation) != 0:
             self.obstacle_spot()
             #self.get_square(win)
             
-
-                                
-def h_value(p_A, p_B):
-    x_A, y_A = p_A
-    x_B, y_B = p_B
-    h_value = abs(x_A - x_B) + abs(y_A - y_B)
-    return h_value
+                        
         
 def grid_maker(window_size, cell_width):
     cell_width = cell_width
@@ -148,6 +116,9 @@ def grid_maker(window_size, cell_width):
     return grid
 
 def algorithm(grid, start, end):
+    for row in grid:
+        for spot in row:
+            spot.reset()
     count = 0
     open_set = PriorityQueue()
     open_set.put((0, count, start))
@@ -184,11 +155,6 @@ def algorithm(grid, start, end):
                     count += 1
                     open_set.put((f_value[neighbor], count, neighbor))
                     open_set_hash.add(neighbor)
-                    neighbor.open_spot()
-
-        if current != start:
-            current.close_spot()
-
 
 
 def get_spot(point, cell_width):
@@ -197,42 +163,6 @@ def get_spot(point, cell_width):
     row = int(y // spot_width)
     col = int(x // spot_width)
     return row, col
-
-def get_distance(p1, p2):
-    delta_x = p1[0] - p2[0]
-    delta_y = p1[1] - p2[1]
-    distance = sqrt(delta_x**2 + delta_y**2)
-    return distance
-
-def circle_square_interception(p1, width, p2, radius, tolerance=0):
-    interception_points = []
-    for point in [p1, (p1[0] + width, p1[1]), (p1[0], p1[1] + width),
-                  (p1[0] + width, p1[1] + width)]:
-        if get_distance(point, p2) <= radius + tolerance:
-            interception_points.append(point)
-    
-    if len(interception_points) != 0:
-        return True
-    else:
-        return False
-    
-def square_square_interception(p1, width_1, p2, width_2, tolerance=0):
-    interception_points = []
-    tolerance = tolerance / 2
-    square_1_corners = [p1, (p1[0], p1[1] + width_1), 
-                        (p1[0] + width_1, p1[1] + width_1), (p1[0] + width_1, p1[1])]
-    for point in square_1_corners:
-        if p2[0] - tolerance <= point[0] <= p2[0] + width_2 + tolerance \
-        and p2[1] - tolerance <= point[1] <= p2[1] + width_2 + tolerance:
-#        if p2[0] < point[0] < (p2[0] + width_2) and \
-#        p2[1] < point[1] < (p2[1] + width_2):
-#        if 0 < point[0] - p2[0] < width_2 and 0 < point[1] - p2[1] < width_2:
-            interception_points.append(point)
-    
-    if len(interception_points) != 0:
-        return True
-    else:
-        return False
     
 
 def run_algorithm(window_size, waiter_radius, obstacle_list, start_point, end_point, win):

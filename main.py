@@ -1,7 +1,7 @@
 from graphics import *
 from obstacles import *
 from waiter import *
-from gridmaker import *
+from shortest_path import *
 from math import sqrt
 from random import randrange
 
