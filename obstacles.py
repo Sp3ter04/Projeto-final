@@ -30,11 +30,10 @@ class Table(Obstacle):
 
 
 class Chair(Obstacle):
-    def __init__(self, color, anchor, side):
+    def __init__(self, color, anchor, width):
         super().__init__(color, anchor)
-        self.side = side
+        self.width = width
         self.shape = "square"
-        self.p1 = Point(anchor[0] - self.side / 2, anchor[1] - self.side / 2)
-        self.p2 = Point(anchor[0] + self.side / 2, anchor[1] + self.side / 2)
-        self.body = Rectangle(self.p1, self.p2)
+        self.p2 = Point(anchor[0] + self.width, anchor[1] + self.width)
+        self.body = Rectangle(self.anchor, self.p2)
         self.body.setFill(self.color)
