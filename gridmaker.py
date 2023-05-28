@@ -3,10 +3,10 @@ from queue import PriorityQueue
 from graphics import *
 
 class Spot:
-    def __init__(self, row, col, waiter_diameter, num_rows):
+    def __init__(self, row, col, cell_width, num_rows):
 
-        self.waiter_diameter = waiter_diameter
-        self.width = self.waiter_diameter
+        self.cell_width = cell_width
+        self.width = self.cell_width
 
         self.row = row
         self.col = col
@@ -117,11 +117,11 @@ class Spot:
             if obstacle.shape == "square":
                 if square_square_interception((self.x_coord, self.y_coord), self.width,
                                               (obstacle.anchor.getX(), obstacle.anchor.getY()), 
-                                              obstacle.width):
+                                              obstacle.width, self.width * 3):
                     occupation.append(obstacle)
             elif obstacle.shape == "circle":
                 if circle_square_interception((self.x_coord, self.y_coord), self.width, 
-                            (obstacle.anchor.getX(), obstacle.anchor.getY()), obstacle.radius):
+                            (obstacle.anchor.getX(), obstacle.anchor.getY()), obstacle.radius, self.width * 1.7):
                     occupation.append(obstacle)
                     
         if len(occupation) != 0:
@@ -136,14 +136,14 @@ def h_value(p_A, p_B):
     h_value = abs(x_A - x_B) + abs(y_A - y_B)
     return h_value
         
-def grid_maker(window_size, waiter_diameter):
-    cell_width = waiter_diameter
+def grid_maker(window_size, cell_width):
+    cell_width = cell_width
     num_rows = window_size // cell_width
     grid = []
     for row in range(int(num_rows)):
         grid.append([]) 
         for col in range(int(num_rows)):
-            spot = Spot(row, col, waiter_diameter, num_rows)
+            spot = Spot(row, col, cell_width, num_rows)
             grid[row].append(spot)
     return grid
 
@@ -191,8 +191,8 @@ def algorithm(grid, start, end):
 
 
 
-def get_spot(point, waiter_diameter):
-    spot_width = waiter_diameter
+def get_spot(point, cell_width):
+    spot_width = cell_width
     x, y = point[0], point[1]
     row = int(y // spot_width)
     col = int(x // spot_width)
@@ -204,11 +204,11 @@ def get_distance(p1, p2):
     distance = sqrt(delta_x**2 + delta_y**2)
     return distance
 
-def circle_square_interception(p1, width, p2, radius):
+def circle_square_interception(p1, width, p2, radius, tolerance=0):
     interception_points = []
     for point in [p1, (p1[0] + width, p1[1]), (p1[0], p1[1] + width),
                   (p1[0] + width, p1[1] + width)]:
-        if get_distance(point, p2) < radius:
+        if get_distance(point, p2) <= radius + tolerance:
             interception_points.append(point)
     
     if len(interception_points) != 0:
@@ -216,13 +216,17 @@ def circle_square_interception(p1, width, p2, radius):
     else:
         return False
     
-def square_square_interception(p1, width_1, p2, width_2):
+def square_square_interception(p1, width_1, p2, width_2, tolerance=0):
     interception_points = []
-    for point in [p1, (p1[0] + width_1, p1[1]), (p1[0], p1[1] + width_1),
-                  (p1[0] + width_1, p1[1] + width_1)]:
-#        if p2[0] < point[0] < p2[0] + width_2 and \
-#        p2[1] < point[1] < p2[1] + width_2:
-        if 0 < point[0] - p2[0] < width_2 and 0 < point[1] - p2[1] < width_2:
+    tolerance = tolerance / 2
+    square_1_corners = [p1, (p1[0], p1[1] + width_1), 
+                        (p1[0] + width_1, p1[1] + width_1), (p1[0] + width_1, p1[1])]
+    for point in square_1_corners:
+        if p2[0] - tolerance <= point[0] <= p2[0] + width_2 + tolerance \
+        and p2[1] - tolerance <= point[1] <= p2[1] + width_2 + tolerance:
+#        if p2[0] < point[0] < (p2[0] + width_2) and \
+#        p2[1] < point[1] < (p2[1] + width_2):
+#        if 0 < point[0] - p2[0] < width_2 and 0 < point[1] - p2[1] < width_2:
             interception_points.append(point)
     
     if len(interception_points) != 0:
@@ -232,12 +236,11 @@ def square_square_interception(p1, width_1, p2, width_2):
     
 
 def run_algorithm(window_size, waiter_radius, obstacle_list, start_point, end_point, win):
-    waiter_diameter = waiter_radius * 2
+    cell_width = waiter_radius / 2
+    grid = grid_maker(window_size, cell_width)    
 
-    grid = grid_maker(window_size, waiter_diameter)    
-
-    row_start, col_start = get_spot(start_point, waiter_diameter)
-    row_end, col_end = get_spot(end_point, waiter_diameter)
+    row_start, col_start = get_spot(start_point, cell_width)
+    row_end, col_end = get_spot(end_point, cell_width)
 
     start = grid[row_start][col_start]
     end = grid[row_end][col_end]

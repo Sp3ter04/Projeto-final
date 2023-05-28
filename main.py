@@ -3,6 +3,8 @@ from obstacles import *
 from waiter import *
 from gridmaker import *
 from math import sqrt
+from random import randrange
+
 
 #Settings - create a button in the main menu
 
@@ -11,15 +13,15 @@ from math import sqrt
 # TABLE_RADIUS
 # CHAIR_SIDE
 
-TABLE_RADIUS = 10
+TABLE_RADIUS = 12
 TABLE_COLOR = "brown"
 
-CHAIR_SIDE = 4.0
+CHAIR_SIDE = 6
 CHAIR_COLOR = "green"
 
 WAITER_COLOR = "blue"
-WAITER_RADIUS = 2
-WAITER_ANCHOR = (5, 5)
+WAITER_RADIUS = 4
+WAITER_ANCHOR = (6, 6)
 WAITER_SPEED = 100
 
 TOLERANCE = 0.5
@@ -40,27 +42,36 @@ def main():
     waiter = Waiter1(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,\
                       WAITER_SPEED)
     waiter.draw(win)
-    chair1 = Chair(CHAIR_COLOR, (50, 30), CHAIR_SIDE)
+    chair1 = Chair(CHAIR_COLOR, (randrange(0, 100),
+                   randrange(0, 100)), CHAIR_SIDE)
     chair1.draw(win)
-    chair1 = Chair(CHAIR_COLOR, (25, 70), CHAIR_SIDE)
-    chair1.draw(win)
-    chair1 = Chair(CHAIR_COLOR, (50, 80), CHAIR_SIDE)
-    chair1.draw(win)
-    table1 = Table(TABLE_COLOR, (90, 20), TABLE_RADIUS)
+    chair2 = Chair(CHAIR_COLOR, (randrange(0, 100),
+                   randrange(0, 100)), CHAIR_SIDE)
+    chair2.draw(win)
+    chair3 = Chair(CHAIR_COLOR, (randrange(0, 100),
+                   randrange(0, 100)), CHAIR_SIDE)
+    chair3.draw(win)
+    table1 = Table(TABLE_COLOR, (randrange(0, 100),
+                   randrange(0, 100)), TABLE_RADIUS)
     table1.draw(win)
-    table1 = Table(TABLE_COLOR, (30, 90), TABLE_RADIUS)
-    table1.draw(win)
-    table1 = Table(TABLE_COLOR, (50, 50), TABLE_RADIUS)
-    table1.draw(win)
+    table2 = Table(TABLE_COLOR, (randrange(0, 100),
+                   randrange(0, 100)), TABLE_RADIUS)
+    table2.draw(win)
+    table3 = Table(TABLE_COLOR, (randrange(0, 100),
+                   randrange(0, 100)), TABLE_RADIUS)
+    table3.draw(win)
     while True:
         mouse_click = win.getMouse()
         try:
             path_to_dirt = run_algorithm(100, WAITER_RADIUS, obstacle_list, (waiter.body.getCenter().getX(), waiter.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()), win)
             for point in path_to_dirt:
-                waiter.move(Point(point.x_coord + WAITER_RADIUS, point.y_coord + WAITER_RADIUS))
+                waiter.move(Point(point.x_coord + WAITER_RADIUS / 4, point.y_coord + WAITER_RADIUS / 4))
             waiter.move(mouse_click)
         except:
-            print("Invalid input")
+            error_message = Text(Point(50, 94), "Invalid Input")
+            error_message.draw(win)
+            time.sleep(0.8)
+            error_message.undraw()
     win.getMouse()
     win.close()
 
