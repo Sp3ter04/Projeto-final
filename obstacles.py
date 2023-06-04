@@ -37,3 +37,12 @@ class Chair(Obstacle):
         self.p2 = Point(anchor[0] + self.width, anchor[1] + self.width)
         self.body = Rectangle(self.anchor, self.p2)
         self.body.setFill(self.color)
+
+def teste():
+    win = GraphWin("test window", 500, 500)
+    chair1 = Chair("black", (250, 250), 10)
+    chair1.draw(win)
+    win.getMouse()
+
+if __name__ == "__main__":
+    teste()

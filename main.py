@@ -22,7 +22,7 @@ CHAIR_COLOR = "green"
 WAITER_COLOR = "blue"
 WAITER_RADIUS = 3
 WAITER_ANCHOR = (6, 6)
-WAITER_SPEED = 100
+WAITER_SPEED = 200
 
 TOLERANCE = 0.5
 
@@ -60,18 +60,7 @@ def main():
     table3 = Table(TABLE_COLOR, (randrange(0, 100),
                    randrange(0, 100)), TABLE_RADIUS)
     table3.draw(win)
-    while True:
-        mouse_click = win.getMouse()
-        try:
-            path_to_dirt = run_algorithm(100, WAITER_RADIUS, obstacle_list, (waiter.body.getCenter().getX(), waiter.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()), win)
-            for point in path_to_dirt:
-                waiter.move(Point(point.x_coord + WAITER_RADIUS / 4, point.y_coord + WAITER_RADIUS / 4))
-            waiter.move(mouse_click)
-        except:
-            error_message = Text(Point(50, 94), "Target Cannot be Reached")
-            error_message.draw(win)
-            time.sleep(0.8)
-            error_message.undraw()
+    waiter.clean_room(obstacle_list, win)
     win.getMouse()
     win.close()
 
