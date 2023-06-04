@@ -8,10 +8,6 @@ from random import randrange
 
 #Settings - create a button in the main menu
 
-# TOLERANCE
-# WAITER_SPEED
-# TABLE_RADIUS
-# CHAIR_SIDE
 
 TABLE_RADIUS = 12
 TABLE_COLOR = "brown"
@@ -25,13 +21,6 @@ WAITER_ANCHOR = (6, 6)
 WAITER_SPEED = 200
 
 TOLERANCE = 0.5
-
-
-def get_distance(p1, p2):
-    delta_x = p1.getX() - p2.getX()
-    delta_y = p1.getY() - p2.getY()
-    distance = sqrt(delta_x**2 + delta_y**2)
-    return delta_x, delta_y, distance
 
 
 

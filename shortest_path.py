@@ -115,6 +115,13 @@ def grid_maker(window_size, cell_width):
             grid[row].append(spot)
     return grid
 
+
+def h_value(p_A, p_B):
+    x_A, y_A = p_A
+    x_B, y_B = p_B
+    h_value = abs(x_A - x_B) + abs(y_A - y_B)
+    return h_value
+
 def algorithm(grid, start, end):
     for row in grid:
         for spot in row:

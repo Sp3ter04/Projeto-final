@@ -3,16 +3,6 @@ from math import sqrt
 from shortest_path import *
 from universal_functions import *
 
-# TOLERANCE
-# WAITER_SPEED
-
-
-def get_distance(p1, p2):
-    delta_x = p1.getX() - p2.getX()
-    delta_y = p1.getY() - p2.getY()
-    distance = sqrt(delta_x**2 + delta_y**2)
-    return delta_x, delta_y, distance
-
 
 class Waiter:
     def __init__(self, color, radius, anchor, tolerance, speed):
