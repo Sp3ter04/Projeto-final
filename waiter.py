@@ -52,10 +52,12 @@ class Waiter1(Waiter):
         super().__init__(color, radius, anchor, tolerance, speed)
 
     def clean_room(self, obstacle_list, win):
+        cell_width = self.radius / 2
+        grid = initialize_algorithm(cell_width, obstacle_list, win)
         while True:
             mouse_click = win.getMouse()
             try:
-                path_to_dirt = run_algorithm(100, self.radius, obstacle_list, (self.body.getCenter().getX(), self.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()), win)
+                path_to_dirt = run_algorithm(cell_width, grid, (self.body.getCenter().getX(), self.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()))
                 for point in path_to_dirt:
                     self.move(Point(point.x_coord + self.radius / 4, point.y_coord + self.radius / 4))
                 self.move(mouse_click)

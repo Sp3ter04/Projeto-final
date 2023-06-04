@@ -122,10 +122,19 @@ def h_value(p_A, p_B):
     h_value = abs(x_A - x_B) + abs(y_A - y_B)
     return h_value
 
+
+def grid_maker(window_size, cell_width):
+    cell_width = cell_width
+    num_rows = window_size // cell_width
+    grid = []
+    for row in range(int(num_rows)):
+        grid.append([])
+        for col in range(int(num_rows)):
+            spot = Spot(row, col, cell_width, num_rows)
+            grid[row].append(spot)
+    return grid
+
 def algorithm(grid, start, end):
-    for row in grid:
-        for spot in row:
-            spot.reset()
     count = 0
     open_set = PriorityQueue()
     open_set.put((0, count, start))
@@ -170,24 +179,22 @@ def get_spot(point, cell_width):
     row = int(y // spot_width)
     col = int(x // spot_width)
     return row, col
+
+def initialize_algorithm(cell_width, obstacle_list, win):
+        grid = grid_maker(100, cell_width)
+        for row in grid:
+            for spot in row:
+                spot.check_occupation(obstacle_list, win)
+        for row in grid:
+            for spot in row:
+                spot.update_neighbors(grid)
+        return grid
     
 
-def run_algorithm(window_size, waiter_radius, obstacle_list, start_point, end_point, win):
-    cell_width = waiter_radius / 2
-    grid = grid_maker(window_size, cell_width)    
-
+def run_algorithm(cell_width, grid, start_point, end_point): 
     row_start, col_start = get_spot(start_point, cell_width)
     row_end, col_end = get_spot(end_point, cell_width)
-
     start = grid[row_start][col_start]
     end = grid[row_end][col_end]
-
-    for row in grid:
-        for spot in row:
-            spot.check_occupation(obstacle_list, win)
-    for row in grid:
-        for spot in row:
-            spot.update_neighbors(grid)
-
     path_to_dirt = algorithm(grid, start, end)
     return path_to_dirt
