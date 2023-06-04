@@ -38,8 +38,22 @@ class Waiter:
             update(self.speed)
         pass
 
-    def move_to_docking(self):
+    def clean_spot(self):
         pass
+
+    def move_to_docking(self, docking_stations):
+        station_paths = {}
+        path_sizes = []
+        for station in docking_stations:
+            path = run_algorithm(self.cell_width, self.grid, (self.body.getCenter().getX(
+            ), self.body.getCenter().getY()), (station.anchor.getX(), station.anchor.getY()))
+            station_paths.update({station : path})
+        for path in station_paths.values():
+            path_sizes.append(len(path))
+        shortest_index = path_sizes.index(min(path_sizes))
+        for point in list(station_paths.values())[shortest_index]:
+            self.move(Point(point.x_coord + self.radius / 4, point.y_coord + self.radius / 4))
+
 
     def spin(self):
         pass
@@ -51,16 +65,19 @@ class Waiter1(Waiter):
     def __init__(self, color, radius, anchor, tolerance, speed):
         super().__init__(color, radius, anchor, tolerance, speed)
 
-    def clean_room(self, obstacle_list, win):
-        cell_width = self.radius / 2
-        grid = initialize_algorithm(cell_width, obstacle_list, win)
+    def clean_room(self, obstacle_list, docking_stations, win):
+        self.cell_width = self.radius / 2
+        self.grid = initialize_algorithm(self.cell_width, obstacle_list, win)
         while True:
             mouse_click = win.getMouse()
             try:
-                path_to_dirt = run_algorithm(cell_width, grid, (self.body.getCenter().getX(), self.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()))
+                path_to_dirt = run_algorithm(self.cell_width, self.grid, (self.body.getCenter().getX(), 
+                                    self.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()))
                 for point in path_to_dirt:
                     self.move(Point(point.x_coord + self.radius / 4, point.y_coord + self.radius / 4))
                 self.move(mouse_click)
+                win.getMouse()
+                self.move_to_docking(docking_stations)
             except:
                 error_message = Text(Point(50, 94), "Target Cannot be Reached")
                 error_message.draw(win)

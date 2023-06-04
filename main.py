@@ -28,9 +28,10 @@ def main():
     win = GraphWin("Trial version", 800, 800)
     win.setCoords(0, 0, 100, 100)
     win.setBackground("white")
-    waiter = Waiter1(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,\
-                      WAITER_SPEED)
-    waiter.draw(win)
+    docking1 = Docking((5, 5))
+    docking1.draw(win)
+    docking2 = Docking((95, 95))
+    docking2.draw(win)
     chair1 = Chair(CHAIR_COLOR, (randrange(0, 100),
                    randrange(0, 100)), CHAIR_SIDE)
     chair1.draw(win)
@@ -49,7 +50,10 @@ def main():
     table3 = Table(TABLE_COLOR, (randrange(0, 100),
                    randrange(0, 100)), TABLE_RADIUS)
     table3.draw(win)
-    waiter.clean_room(obstacle_list, win)
+    waiter = Waiter1(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
+                     WAITER_SPEED)
+    waiter.draw(win)
+    waiter.clean_room(obstacle_list, docking_stations, win)
     win.getMouse()
     win.close()
 

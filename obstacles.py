@@ -3,6 +3,7 @@ from graphics import *
 #TABLE_RADIUS
 #CHAIR_SIDE
 obstacle_list = []
+docking_stations = []
 
 class Obstacle:
     def __init__(self, color, anchor):
@@ -37,6 +38,16 @@ class Chair(Obstacle):
         self.p2 = Point(anchor[0] + self.width, anchor[1] + self.width)
         self.body = Rectangle(self.anchor, self.p2)
         self.body.setFill(self.color)
+
+class Docking:
+    def __init__(self, anchor):
+        docking_stations.append(self)
+        self.anchor = Point(anchor[0], anchor[1])
+        self.body = Circle(self.anchor, 5)
+        self.body.setFill("orange")
+
+    def draw(self, win):
+        self.body.draw(win)
 
 def teste():
     win = GraphWin("test window", 500, 500)
