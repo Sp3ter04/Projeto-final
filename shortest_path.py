@@ -5,8 +5,7 @@ from universal_functions import *
 class Spot:
     def __init__(self, row, col, cell_width, num_rows):
 
-        self.cell_width = cell_width
-        self.width = self.cell_width
+        self.width = cell_width
 
         self.row = row
         self.col = col
@@ -29,6 +28,14 @@ class Spot:
         
     def reset(self):
         self.state = "unchecked"
+
+    def ask_limit(self):
+        if self.x_coord < 2 * self.width or self.x_coord >= 100 - 2 * self.width:
+            return True
+        elif self.y_coord < 2 * self.width or self.y_coord >= 100 - 2 * self.width:
+            return True
+        else:
+            return False 
 
     def get_square(self, win):
         square = Rectangle(Point(self.x_coord, self.y_coord), 
@@ -86,17 +93,20 @@ class Spot:
 
     def check_occupation(self, obstacle_list, win):
         occupation = []
-        for obstacle in obstacle_list:
-            if obstacle.shape == "square":
-                if square_square_interception((self.x_coord, self.y_coord), self.width,
-                                              (obstacle.anchor.getX(), obstacle.anchor.getY()), 
-                                              obstacle.width, self.width * 3):
-                    occupation.append(obstacle)
-            elif obstacle.shape == "circle":
-                if circle_square_interception((self.x_coord, self.y_coord), self.width, 
-                                            (obstacle.anchor.getX(), obstacle.anchor.getY()), 
-                                            obstacle.radius, self.width * 1.7):
-                    occupation.append(obstacle)
+        if self.ask_limit():
+            occupation.append("limit")
+        else:
+            for obstacle in obstacle_list:
+                if obstacle.shape == "square":
+                    if square_square_interception((self.x_coord, self.y_coord), self.width,
+                                                (obstacle.anchor.getX(), obstacle.anchor.getY()), 
+                                                obstacle.width, self.width * 3):
+                        occupation.append(obstacle)
+                elif obstacle.shape == "circle":
+                    if circle_square_interception((self.x_coord, self.y_coord), self.width, 
+                                                (obstacle.anchor.getX(), obstacle.anchor.getY()), 
+                                                obstacle.radius, self.width * 1.7):
+                        occupation.append(obstacle)
                     
         if len(occupation) != 0:
             self.obstacle_spot()

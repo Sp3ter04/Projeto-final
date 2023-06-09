@@ -1,9 +1,11 @@
 from graphics import *
+from waiter import *
 
 #TABLE_RADIUS
 #CHAIR_SIDE
 obstacle_list = []
 docking_stations = []
+dirty_spots = []
 
 class Obstacle:
     def __init__(self, color, anchor):
@@ -48,6 +50,23 @@ class Docking:
 
     def draw(self, win):
         self.body.draw(win)
+
+class Dirt:
+    def __init__(self, anchor, waiter, win):
+        self.anchor = anchor
+        self.body= Circle(self.anchor, waiter.radius * 1.2)
+        self.body.setFill("black")
+        waiter_center = waiter.body.getCenter()
+        waiter.body.undraw()
+        waiter.body.draw(win)#waiter_center, win)
+
+    def draw(self, win):
+        self.body.draw(win)
+
+    def cleaned(self):
+        self.body.undraw()
+
+
 
 def teste():
     win = GraphWin("test window", 500, 500)
