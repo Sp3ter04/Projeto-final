@@ -41,10 +41,11 @@ class Chair(Obstacle):
         self.body.setFill(self.color)
 
 class Docking:
-    def __init__(self, anchor):
+    def __init__(self, anchor, radius):
         docking_stations.append(self)
         self.anchor = Point(anchor[0], anchor[1])
-        self.body = Circle(self.anchor, 5)
+        self.radius = radius
+        self.body = Circle(self.anchor, self.radius)
         self.body.setFill("orange")
 
     def draw(self, win):
@@ -53,9 +54,11 @@ class Docking:
 class Dirt:
     def __init__(self, anchor, waiter, win):
         self.anchor = anchor
-        self.body= Circle(self.anchor, waiter.radius * 1.2)
+        self.radius = waiter.radius * 1.2
+        self.body = Circle(self.anchor, self.radius)
         self.body.setFill("black")
         self.body.draw(win)
+        self.shape = "circle"
         waiter.body.undraw()
         waiter.body.draw(win)#waiter_center, win)
 
