@@ -50,11 +50,14 @@ def main():
     table3 = Table(TABLE_COLOR, (randrange(0, 100),
                    randrange(0, 100)), TABLE_RADIUS)
     table3.draw(win)
-    waiter = Waiter1(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
-                     WAITER_SPEED)
-    waiter.draw(win)
-    waiter.clean_room(obstacle_list, docking_stations, win)
-    win.getMouse()
+    # waiter = Waiter1(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
+    #                  WAITER_SPEED, obstacle_list, win)
+    # waiter.draw()
+    # waiter.clean_room(docking_stations)
+    waiterb = Waiter23(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
+                     WAITER_SPEED, obstacle_list, win)
+    waiterb.draw()
+    waiterb.sweep_whole_room(docking_stations)
     win.close()
 
 main()

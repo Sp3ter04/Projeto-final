@@ -8,6 +8,12 @@ def get_distance(p1, p2):
     distance = sqrt(delta_x**2 + delta_y**2)
     return delta_x, delta_y, distance
 
+def circle_circle_interception(p1, radius1, p2, radius2, tolerance=0):
+    if sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1])**2) <= radius1 + radius2 + tolerance:
+        return True
+    else:
+        return False
+
 
 def circle_square_interception(p1, width, p2, radius, tolerance=0):
     interception_points = []
