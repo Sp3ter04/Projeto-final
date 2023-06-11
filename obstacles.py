@@ -44,6 +44,7 @@ class Docking:
     def __init__(self, anchor, radius):
         docking_stations.append(self)
         self.anchor = Point(anchor[0], anchor[1])
+        self.shape = "circle"
         self.radius = radius
         self.body = Circle(self.anchor, self.radius)
         self.body.setFill("orange")

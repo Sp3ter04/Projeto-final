@@ -16,16 +16,18 @@ CHAIR_SIDE = 6
 CHAIR_COLOR = "green"
 
 WAITER_COLOR = "blue"
-WAITER_RADIUS = 5
-WAITER_ANCHOR = (WAITER_RADIUS, WAITER_RADIUS)
+WAITER_RADIUS = 4
+WAITER_ANCHOR = (WAITER_RADIUS * 1.2, WAITER_RADIUS * 1.2)
 WAITER_SPEED = 200
+
+DOCKING_RADIUS = WAITER_RADIUS * 1.2
 
 TOLERANCE = 0.5
 
 def generate_random_obstacles(number):
     docking_interception = False
     obstacle_interception = False
-    obstacle_types = ["chair", "chair", "table"]
+    obstacle_types = ["chair", "table", "table"]
     for obstacle in range(number):
         while True:
             obstacle_type = obstacle_types[randint(0, 2)]
@@ -81,22 +83,23 @@ def main():
     win = GraphWin("Trial version", 800, 800)
     win.setCoords(0, 0, 100, 100)
     win.setBackground("white")
-    docking1 = Docking((WAITER_RADIUS, WAITER_RADIUS), WAITER_RADIUS)
+    docking1 = Docking((DOCKING_RADIUS, DOCKING_RADIUS), DOCKING_RADIUS)
     docking1.draw(win)
-    docking2 = Docking((100 - WAITER_RADIUS, 100 - WAITER_RADIUS), WAITER_RADIUS)
+    docking2 = Docking((100 - DOCKING_RADIUS, 100 - DOCKING_RADIUS), DOCKING_RADIUS)
     docking2.draw(win)
-    generate_random_obstacles(6)
-
+    generate_random_obstacles(8)
     for obstacle in obstacle_list:
         obstacle.draw(win)
     waiter = Waiter1(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
-                     WAITER_SPEED, obstacle_list, win)
+                    WAITER_SPEED, obstacle_list, win)
     waiter.draw()
     waiter.clean_room(docking_stations)
     waiterb = Waiter23(WAITER_COLOR, WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
                      WAITER_SPEED, obstacle_list, win)
     waiterb.draw()
-    waiterb.sweep_whole_room(docking_stations)
+    waiterb.clean_whole_room(docking_stations)#docking_stations)
+
+    win.getMouse()
     win.close()
 
 main()

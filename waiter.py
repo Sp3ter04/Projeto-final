@@ -19,7 +19,6 @@ class Waiter:
         self.quit = False
         self.start = False
         self.cell_width = self.radius / 2
-        self.grid = initialize_algorithm(self.cell_width, obstacle_list, self.win)
 
     def draw(self):
         self.body.draw(self.win)
@@ -49,10 +48,19 @@ class Waiter:
 
         return dirty_spots
     
-    def move_with_shortest_path(self, target):
+    def move_with_shortest_path(self, target, dirty_spots=[]):
             path = run_algorithm(self.cell_width, self.grid, (self.body.getCenter().getX(),
                 self.body.getCenter().getY()), (target.getX(), target.getY()))
             for point in path:
+                if len(dirty_spots) > 0:
+                    if self.collision(dirty_spots):
+                        return_spot = self.body.getCenter()
+                        spot = self.latest_collision
+                        self.move(spot.body.getCenter())
+                        self.clean_spot()
+                        dirty_spots.remove(spot)
+                        spot.cleaned()
+                        self.move(return_spot)
                 self.move(Point(point.x_coord + self.radius /
                                 4, point.y_coord + self.radius / 4))
             self.move(target)
@@ -66,8 +74,8 @@ class Waiter:
     def get_vector(self, target):
         delta_x, delta_y, distance = get_distance(
             target, self.body.getCenter())
-        dx = delta_x / (distance * 2)
-        dy = delta_y / (distance * 2)
+        dx = delta_x / (distance * 2 + 0.01)
+        dy = delta_y / (distance * 2 + 0.01)
         return dx, dy
 
     def continue_moving(self, target):
@@ -113,20 +121,20 @@ class Waiter:
             self.move(Point(point.x_coord + self.radius / 4, point.y_coord + self.radius / 4))
         self.move(docking_stations[shortest_index].anchor)
 
-    def collision(self, obstacle_list):
-        obstacle_collisions = []
-        for obstacle in obstacle_list:
-            obs = (obstacle.anchor.getX(), obstacle.anchor.getY())
+    def collision(self, entity_list, tolerance=0):
+        collisions = []
+        for entity in entity_list:
+            ent = (entity.anchor.getX(), entity.anchor.getY())
             waiter = (self.body.getCenter().getX(), self.body.getCenter().getY())
-            if obstacle.shape == "square":
-                if circle_square_interception(obs, obstacle.width, waiter, self.radius):
-                    obstacle_collisions.append(obstacle)
-            elif obstacle.shape == "circle":
-                if circle_circle_interception(obs, obstacle.radius, waiter, self.radius):
-                    obstacle_collisions.append(obstacle)
-        if len(obstacle_collisions) != 0:
-            self.latest_collision = obstacle_collisions[len(obstacle_collisions) - 1]
-            return obstacle_collisions
+            if entity.shape == "square":
+                if circle_square_interception(ent, entity.width, waiter, self.radius, tolerance):
+                    collisions.append(entity)
+            elif entity.shape == "circle":
+                if circle_circle_interception(ent, entity.radius, waiter, self.radius, tolerance):
+                    collisions.append(entity)
+        if len(collisions) != 0:
+            self.latest_collision = collisions[len(collisions) - 1]
+            return True
         else:
             return False
 
@@ -136,6 +144,8 @@ class Waiter:
 class Waiter1(Waiter):
     def __init__(self, color, radius, anchor, tolerance, speed, obstacle_list, win):
         super().__init__(color, radius, anchor, tolerance, speed, obstacle_list, win)
+        self.grid = initialize_algorithm(
+            self.cell_width, obstacle_list, self.win, self.cell_width * 3, self.cell_width * 1.7, self.cell_width * 2)[0]
 
 
         
@@ -163,26 +173,80 @@ class Waiter1(Waiter):
 class Waiter23(Waiter):
     def __init__(self, color, radius, anchor, tolerance, speed, obstacle_list, win):
         super().__init__(color, radius, anchor, tolerance, speed, obstacle_list, win)
+        self.grid, self.non_obstacle_grid = initialize_algorithm(
+            self.cell_width, obstacle_list, self.win, self.cell_width * 2, self.cell_width)
         self.latest_collision = None
 
+    def clean_whole_room(self, docking_stations):
+        while True:
+            dirty_spots = self.get_dirty_spots()
+            for row in self.non_obstacle_grid:
+                for spot in row:
+                    spot.clean = False
+            for row in self.non_obstacle_grid[3::6]:
+                for spot in row:
+                    for neighbor in spot.neighbors:
+                        for second_neighbor in neighbor.neighbors:
+                            if self.collision([second_neighbor]):
+                                second_neighbor.clean = True
+                                #second_neighbor.get_square(self.win, "blue")
+                    if not spot.clean:
+                        spot_anchor = (spot.anchor.getX(), spot.anchor.getY())
+                        target = Point(
+                            spot_anchor[0] + self.cell_width/2, spot_anchor[1] + self.cell_width/2)
+                        self.move_with_shortest_path(target, dirty_spots)
+            self.move_to_docking(docking_stations)
+            self.win.getMouse()
+
     def path_inversion(self):
+        self.avoidance_count += 1
+        print(self.avoidance_count)
         for point in self.turning_x:
             point[1] *= -1
         self.body.move(0, self.turning_x[0][1])
         
 
-    def avoid_obstacle_horizontal(self):
-        self.turning_x.insert(0, self.x_turned[len(self.x_turned) - 1])
-        self.path_inversion()
-        while self.body.getCenter().getX() > self.turning_x[0][0] + 0.5:
-            self.body.move(-0.5, 0)
-            update(self.speed)
+    def avoid_obstacle_horizontal(self, dirty_spots):
+        #self.turning_x.insert(0, self.x_turned[len(self.x_turned) - 1])
+        #self.path_inversion()
+        #while self.body.getCenter().getX() > self.turning_x[0][0] + 0.5:
+        #    self.body.move(-0.5, 0)
+        #    update(self.speed)
+        #self.win.getMouse()
+        current_position = (self.body.getCenter().getX(),
+                            self.body.getCenter().getY())
+        temp_row, temp_collumn = get_spot((self.turning_x[0][0], current_position[1]), self.cell_width)       
+        if self.latest_collision.body.getCenter().getY() >= 50:
+            inverted_row_list = []
+            for row in self.grid[:temp_row - 1]:
+                inverted_row_list.insert(0, row)
+            for row in inverted_row_list:
+                if row[temp_collumn].ask_obstacle():
+                    continue
+                else:
+                    target = Point(row[temp_collumn].x_coord + self.cell_width / 2,
+                                   row[temp_collumn].y_coord + self.cell_width / 2)
+                    break
+        else:
+            for row in self.grid[temp_row + 1:]:
+                if row[temp_collumn].ask_obstacle():
+                    continue
+                else:
+                    target = Point(row[temp_collumn].x_coord + self.cell_width / 2,
+                                   row[temp_collumn].y_coord + self.cell_width / 2)
+                    break
+        self.move_with_shortest_path(target, dirty_spots)
 
-    def avoid_obstacle_vertical(self):
+    def avoid_obstacle_vertical(self, dirty_spots):
         current_position = (self.body.getCenter().getX(), self.body.getCenter().getY())
         current_row, current_collumn = get_spot(current_position, self.cell_width)
-        if current_position[1] >= self.latest_collision.anchor.getY():
-            for row in self.grid[:current_row]:
+        if current_position[0] <= 3 * self.radius:
+            self.move(Point(current_position[0], 100 - self.radius))
+        elif current_position[1] >= self.latest_collision.anchor.getY():
+            inverted_row_list = []
+            for row in self.grid[:current_row - 1]:
+                inverted_row_list.insert(0, row)
+            for row in inverted_row_list:
                 if row[current_collumn].ask_obstacle():
                     continue
                 else:
@@ -190,7 +254,7 @@ class Waiter23(Waiter):
                                    row[current_collumn].y_coord + self.cell_width / 2)
                     break
         else:
-            for row in self.grid[current_row:]:
+            for row in self.grid[current_row + 1:]:
                 if row[current_collumn].ask_obstacle():
                     continue
                 else:
@@ -198,43 +262,51 @@ class Waiter23(Waiter):
                                    row[current_collumn].y_coord + self.cell_width / 2)
                     break
         try:
-            self.move_with_shortest_path(target)
+            #target.get_square(self.win)
+            self.move_with_shortest_path(target, dirty_spots)
         except:
-            self.path_inversion()
+            print("Unable to vertically contour")
+            if self.avoidance_count <= 4:
+                self.path_inversion()
+            else:
+                self.avoid_obstacle_horizontal(dirty_spots)
         #target.get_square(self.win)
 
     def sweep_whole_room(self, docking_stations):
         while True:
             dirty_spots = self.get_dirty_spots()
+            if not self.collision([docking_stations[0]]):
+                self.move_with_shortest_path(docking_stations[0].body.getCenter())
             self.turning_x = []
             self.x_turned = []
-            y_turn = 0.5
+            y_turn = 0.25
             for x in range(100 // (2 * self.radius)):
                 self.turning_x.append([(x * 2 + 1) * self.radius, y_turn])
                 y_turn *= -1
             if not self.quit:
                 while len(self.turning_x) > 0:
+                    self.avoidance_count = 0
                     while self.body.getCenter().getX() < self.turning_x[0][0]:
                         if not self.collision(obstacle_list):
                             if self.collision(dirty_spots):
                                 return_spot = self.body.getCenter()
-                                spot = self.collision(dirty_spots)[0]
+                                spot = self.latest_collision
                                 self.move(spot.body.getCenter())
                                 self.clean_spot()
                                 dirty_spots.remove(spot)
                                 spot.cleaned()
                                 self.move(return_spot)
                             else:
-                                self.body.move(0.5, 0)
+                                self.body.move(0.25, 0)
                         else:
-                            self.avoid_obstacle_horizontal()
+                            self.avoid_obstacle_horizontal(dirty_spots)
                         update(self.speed)
                     self.body.move(0, self.turning_x[0][1])
                     while self.radius < self.body.getCenter().getY() < 100 - self.radius:
                         if not self.collision(obstacle_list):
                             if self.collision(dirty_spots):
                                 return_spot = self.body.getCenter()
-                                spot = self.collision(dirty_spots)[0]
+                                spot = self.latest_collision
                                 self.move(spot.body.getCenter())
                                 self.clean_spot()
                                 dirty_spots.remove(spot)
@@ -243,18 +315,19 @@ class Waiter23(Waiter):
                             else:
                                 self.body.move(0, self.turning_x[0][1])
                         else:
-                            self.avoid_obstacle_vertical()
+                            self.avoid_obstacle_vertical(dirty_spots)
                         update(self.speed)
                     self.x_turned.append(self.turning_x[0])
                     self.turning_x.pop(0)
-                    print(self.turning_x)
-                    print(self.x_turned)
                 
                     # self.clean_dirty_spots(dirty_spots)
                     # self.move_to_docking(docking_stations)
                     # self.start = False
+
+                #self.move_to_docking(docking_stations)
+                #self.win.getMouse()
             else:
                 break
             self.move_to_docking(docking_stations)
-            self.win.getMouse()
+            self.start = False
 

@@ -1,21 +1,21 @@
 from queue import PriorityQueue
 from graphics import *
 from universal_functions import *
+from random import randint
 
 class Spot:
     def __init__(self, row, col, cell_width, num_rows):
-
         self.width = cell_width
-
         self.row = row
         self.col = col
         self.num_rows = num_rows
-
         self.x_coord = col*self.width
         self.y_coord = row*self.width
-
         self.neighbors = []
         self.state = "unchecked"
+        self.clean = False
+        self.anchor = Point(self.x_coord, self.y_coord)
+        self.shape = "square"
 
     def get_coords(self):
         return self.row, self.col
@@ -29,19 +29,20 @@ class Spot:
     def reset(self):
         self.state = "unchecked"
 
-    def ask_limit(self):
-        if self.x_coord < 2 * self.width or self.x_coord >= 100 - 2 * self.width:
+    def ask_limit(self, border_precision):
+        if self.x_coord < border_precision or self.x_coord >= 100 - border_precision:
             return True
-        elif self.y_coord < 2 * self.width or self.y_coord >= 100 - 2 * self.width:
+        elif self.y_coord < border_precision or self.y_coord >= 100 - border_precision:
             return True
         else:
             return False 
 
-    def get_square(self, win):
-        square = Rectangle(Point(self.x_coord, self.y_coord), 
+    def get_square(self, win, outline):
+        self.square = Rectangle(Point(self.x_coord, self.y_coord), 
                            Point(self.x_coord + self.width, self.y_coord + self.width))
-        square.setOutline("black")
-        square.draw(win)
+        
+        self.square.setOutline(outline)
+        self.square.draw(win)
 
     def update_neighbors(self, grid):
         self.neighbors = []
@@ -91,26 +92,26 @@ class Spot:
         and not grid[self.row][self.col - 1].ask_obstacle():  # LEFT                
             self.neighbors.append(grid[self.row][self.col - 1])
 
-    def check_occupation(self, obstacle_list, win):
+    def check_occupation(self, obstacle_list, win, chair_precision, table_precision, border_precision, outline):
         occupation = []
-        if self.ask_limit():
+        if self.ask_limit(border_precision):
             occupation.append("limit")
         else:
             for obstacle in obstacle_list:
                 if obstacle.shape == "square":
                     if square_square_interception((self.x_coord, self.y_coord), self.width,
                                                 (obstacle.anchor.getX(), obstacle.anchor.getY()), 
-                                                obstacle.width, self.width * 3):
+                                                obstacle.width, chair_precision): #self.width * 3):
                         occupation.append(obstacle)
                 elif obstacle.shape == "circle":
                     if circle_square_interception((self.x_coord, self.y_coord), self.width, 
                                                 (obstacle.anchor.getX(), obstacle.anchor.getY()), 
-                                                obstacle.radius, self.width * 1.7):
+                                                obstacle.radius, table_precision): #self.width * 1.7):
                         occupation.append(obstacle)
                     
         if len(occupation) != 0:
             self.obstacle_spot()
-            #self.get_square(win)
+            #self.get_square(win, outline)
             
                         
         
@@ -190,15 +191,29 @@ def get_spot(point, cell_width):
     col = int(x // spot_width)
     return row, col
 
-def initialize_algorithm(cell_width, obstacle_list, win):
+def initialize_algorithm(cell_width, obstacle_list, win, chair_precision=0, table_precision=0, border_precision=0):
         grid = grid_maker(100, cell_width)
+        non_obstacle_grid = []
+        turn = 1
+        outline_collors = ["black", "red",
+                           "lightgreen", "blue", "yellow", "pink"]
+        outline = outline_collors[randint(0, 5)]
         for row in grid:
             for spot in row:
-                spot.check_occupation(obstacle_list, win)
+                spot.check_occupation(obstacle_list, win, chair_precision, table_precision, border_precision, outline)
         for row in grid:
             for spot in row:
                 spot.update_neighbors(grid)
-        return grid
+        for row in grid:
+            non_obstacle_grid.append([])
+            for spot in row:
+                if not spot.ask_obstacle():
+                    if turn % 2 == 0:
+                        non_obstacle_grid[grid.index(row)].append(spot)
+                    else:
+                        non_obstacle_grid[grid.index(row)].insert(0, spot)
+            turn += 1
+        return grid, non_obstacle_grid
     
 
 def run_algorithm(cell_width, grid, start_point, end_point): 
