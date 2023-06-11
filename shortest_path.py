@@ -195,6 +195,7 @@ def initialize_algorithm(cell_width, obstacle_list, win, chair_precision=0, tabl
         grid = grid_maker(100, cell_width)
         non_obstacle_grid = []
         turn = 1
+        count = 0
         outline_collors = ["black", "red",
                            "lightgreen", "blue", "yellow", "pink"]
         outline = outline_collors[randint(0, 5)]
@@ -208,11 +209,13 @@ def initialize_algorithm(cell_width, obstacle_list, win, chair_precision=0, tabl
             non_obstacle_grid.append([])
             for spot in row:
                 if not spot.ask_obstacle():
-                    if turn % 2 == 0:
+                    if turn > 0:
                         non_obstacle_grid[grid.index(row)].append(spot)
                     else:
                         non_obstacle_grid[grid.index(row)].insert(0, spot)
-            turn += 1
+            if count % 4:
+                turn *= -1
+            count += 1
         return grid, non_obstacle_grid
     
 
