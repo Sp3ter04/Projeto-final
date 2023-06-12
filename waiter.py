@@ -4,30 +4,42 @@ from shortest_path import *
 from universal_functions import *
 from obstacles import *
 
-
+LED_GREEN = color_rgb(17, 207, 48)
+LED_BLUE = "blue"
+LED_RED = "red"
 class Waiter:
-    def __init__(self, color, radius, anchor, tolerance, speed, obstacle_list, win):
-        self.body_entities = []
+    def __init__(self, radius, anchor, tolerance, speed, win):
         self.win = win
-        self.color = color
+        self.color = color_rgb(41, 39, 39)
         self.radius = radius
         self.anchor = Point(anchor[0], anchor[1])
         self.tolerance = tolerance
         self.speed = speed
         self.body = Circle(self.anchor, self.radius)
         self.body.setFill(self.color)
+        self.outline = Circle(self.anchor, self.radius * 0.95)
+        self.outline.setFill("gray")
         self.quit = False
         self.start = False
         self.cell_width = self.radius / 2
+        self.battery = 2000
+        self.body_entities = [self.body, self.outline]
 
     def draw(self):
-        self.body.draw(self.win)
+        for entity in self.body_entities:
+            entity.draw(self.win)
+
+    def undraw(self):
+        for entity in self.body_entities:
+            entity.undraw()
 
     def get_dirty_spots(self):
         dirty_spots = []
         while not self.start:
             mouse_click = self.win.getMouse()
             if mouse_click.getX() >= 90 and mouse_click.getY() <= 10:
+                    for spot in dirty_spots:
+                        spot.body.undraw()
                     self.quit = True
                     break
             if mouse_click.getX() <= 10 and mouse_click.getY() >= 90:
@@ -68,7 +80,9 @@ class Waiter:
     def move(self, target):
         dx, dy = self.get_vector(target)
         while self.continue_moving(target):
-            self.body.move(dx, dy)
+            self.battery -= 1
+            for entity in self.body_entities:
+                entity.move(dx, dy)
             update(self.speed)
 
     def get_vector(self, target):
@@ -96,7 +110,8 @@ class Waiter:
             dx = x - self.body.getCenter().getX()
             dy = y - self.body.getCenter().getY()
 
-            self.body.move(dx, dy)
+            for entity in self.body_entities:
+                entity.move(dx, dy)
 
             theta += 0.30
             spiral += 0.02
@@ -142,10 +157,11 @@ class Waiter:
 
 
 class Waiter1(Waiter):
-    def __init__(self, color, radius, anchor, tolerance, speed, obstacle_list, win):
-        super().__init__(color, radius, anchor, tolerance, speed, obstacle_list, win)
+    def __init__(self, radius, anchor, tolerance, speed, win):
+        super().__init__(radius, anchor, tolerance, speed, win)
         self.grid = initialize_algorithm(
             self.cell_width, obstacle_list, self.win, self.cell_width * 3, self.cell_width * 1.7, self.cell_width * 2)[0]
+        self.draw()
 
 
         
@@ -171,30 +187,50 @@ class Waiter1(Waiter):
 
 
 class Waiter23(Waiter):
-    def __init__(self, color, radius, anchor, tolerance, speed, obstacle_list, win):
-        super().__init__(color, radius, anchor, tolerance, speed, obstacle_list, win)
+    def __init__(self, radius, anchor, tolerance, speed, win):
+        super().__init__( radius, anchor, tolerance, speed, win)
         self.grid, self.non_obstacle_grid = initialize_algorithm(
             self.cell_width, obstacle_list, self.win, self.cell_width * 2, self.cell_width * 2)
         self.latest_collision = None
+        self.charge_led = Circle(self.body.getCenter(), self.radius * 0.35)
+        self.charge_led.setFill(LED_GREEN)
+        self.body_entities.append(self.charge_led)
+        for entity in self.body_entities:
+            entity.draw(self.win)
+
+    def low_battery(self, docking_stations):
+        return_pos = self.body.getCenter()
+        self.charge_led.setFill(LED_RED)
+        self.move_to_docking(docking_stations)
+        self.charge_led.setFill(LED_BLUE)
+        time.sleep(2)
+        self.battery = 2000
+        self.charge_led.setFill(LED_GREEN)
+        self.move_with_shortest_path(return_pos)
 
     def clean_whole_room(self, docking_stations):
         while True:
             dirty_spots = self.get_dirty_spots()
-            for row in self.non_obstacle_grid:
-                for spot in row:
-                    spot.clean = False
-            for row in self.non_obstacle_grid[3::4]:
-                for spot in row:
-                    for neighbor in spot.neighbors:
-                        for second_neighbor in neighbor.neighbors:
-                            if self.collision([second_neighbor]):
-                                second_neighbor.clean = True
-                                #second_neighbor.get_square(self.win, "blue")
-                    if not spot.clean:
-                        spot_anchor = (spot.anchor.getX(), spot.anchor.getY())
-                        target = Point(
-                            spot_anchor[0] + self.cell_width/2, spot_anchor[1] + self.cell_width/2)
-                        self.move_with_shortest_path(target, dirty_spots)
-            self.move_to_docking(docking_stations)
-            self.start = False
+            if not self.quit:
+                for row in self.non_obstacle_grid:
+                    for spot in row:
+                        spot.clean = False
+                for row in self.non_obstacle_grid[3::4]:
+                    for spot in row:
+                        for neighbor in spot.neighbors:
+                            for second_neighbor in neighbor.neighbors:
+                                if self.collision([second_neighbor]):
+                                    second_neighbor.clean = True
+                                    #second_neighbor.get_square(self.win, "blue")
+                        if not spot.clean:
+                            spot_anchor = (spot.anchor.getX(), spot.anchor.getY())
+                            target = Point(
+                                spot_anchor[0] + self.cell_width/2, spot_anchor[1] + self.cell_width/2)
+                            if self.battery <= 250:
+                                self.low_battery(docking_stations)
+                            self.move_with_shortest_path(target, dirty_spots)
+                self.start = False
+            else:
+                break
+            
 
