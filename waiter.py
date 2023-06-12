@@ -162,7 +162,7 @@ class Waiter1(Waiter):
     def __init__(self, radius, tolerance, speed, docking_stations, win):
         super().__init__(radius, tolerance, speed, docking_stations, win)
         self.grid = initialize_algorithm(
-            self.cell_width, obstacle_list, self.win, self.cell_width * 2.8, self.cell_width * 1.7, self.cell_width * 2)[0]
+            self.cell_width, obstacle_list, self.win, self.cell_width * 2.7, self.cell_width * 1.3, self.cell_width * 2)[0]
         self.draw()
 
 

@@ -1,5 +1,7 @@
 from math import sqrt
 from graphics import *
+from random import randint
+from obstacles import *
 
 
 def get_distance(p1, p2):
@@ -59,3 +61,66 @@ def display_error_message(message, win):
     time.sleep(0.8)
     for entity in error_box:
         entity.undraw()
+
+
+def generate_random_obstacles(number, table_radius, chair_side, waiter_radius):
+    obstacle_types = ["chair", "chair", "chair",
+                      "table", "table", "table", "table", "table"]
+    for obstacle in range(number):
+        while True:
+            obstacle_type, obstacle_settings = obstacle_generator(
+                obstacle_types, table_radius, chair_side)
+            obstacle_interception = generator_iterator(
+                obstacle_list, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
+            docking_interception = generator_iterator(
+                docking_stations, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
+            if docking_interception or obstacle_interception:
+                continue
+            if obstacle_type == "chair":
+                chair = Chair(obstacle_settings, chair_side)
+                break
+            else:
+                table = Table(obstacle_settings, table_radius)
+                break
+
+
+def generator_iterator(entity_list, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius):
+    obstacle_interception = False
+    for entity in entity_list:
+        obstacle_interception = obstacle_interceptions(
+            entity, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
+        if obstacle_interception:
+            break
+    return obstacle_interception
+
+
+def obstacle_generator(obstacle_types, table_radius, chair_side):
+    obstacle_type = obstacle_types[randint(0, 7)]
+    if obstacle_type == "chair":
+        obstacle_settings = (randint(chair_side + 4, 96 - chair_side),
+                             randint(chair_side + 4, 96 - chair_side))
+    elif obstacle_type == "table":
+        obstacle_settings = (
+            randint(table_radius + 4, 96 - table_radius), randint(table_radius + 4, 96 - table_radius))
+    return obstacle_type, obstacle_settings
+
+
+def obstacle_interceptions(obstacle, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius):
+    current_obstacle = obstacle.anchor
+    current_center = (current_obstacle.getX(), current_obstacle.getY())
+    obstacle_interception = False
+    if obstacle.shape == "square":
+        if obstacle_type == "chair":
+            obstacle_interception = square_square_interception(
+                current_center, chair_side, obstacle_settings, chair_side, 2 * waiter_radius)
+        else:
+            obstacle_interception = circle_square_interception(
+                current_center, chair_side, obstacle_settings, table_radius, 2 * waiter_radius)
+    else:
+        if obstacle_type == "chair":
+            obstacle_interception = circle_square_interception(
+                obstacle_settings, chair_side, current_center, table_radius, 2 * waiter_radius)
+        else:
+            obstacle_interception = circle_circle_interception(
+                obstacle_settings, table_radius, current_center, table_radius, 2 * waiter_radius)
+    return obstacle_interception

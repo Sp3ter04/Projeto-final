@@ -133,14 +133,3 @@ class Dirt:
     def cleaned(self):
         for entity in self.body_entities:
             entity.undraw()
-
-
-
-def teste():
-    win = GraphWin("test window", 500, 500)
-    chair1 = Chair("black", (250, 250), 10)
-    chair1.draw(win)
-    win.getMouse()
-
-if __name__ == "__main__":
-    teste()
