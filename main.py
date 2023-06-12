@@ -1,7 +1,5 @@
-from first_implementation import *
-from second_implementation import *
-from third_implementation import *
 from menu import *
+import subprocess
 
 def main():
     while True:
@@ -11,11 +9,11 @@ def main():
         if user_order == "quit":
             break
         elif user_order == "first imp":
-            first_implementation()
+            subprocess.run(["python", "first_implementation.py"])
         elif user_order == "second imp":
-            second_implementation()
+            subprocess.run(["python", "second_implementation.py"])
         elif user_order == "third imp":
-            third_implementation()
+            subprocess.run(["python", "third_implementation.py"])
 
 
 main()

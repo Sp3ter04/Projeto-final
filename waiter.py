@@ -184,6 +184,8 @@ class Waiter1(Waiter):
                 self.move_to_docking()
                 self.start = False
             else:
+                for obstacle in obstacle_list:
+                    obstacle_list.remove(obstacle)
                 break
 
 
@@ -236,6 +238,8 @@ class Waiter23(Waiter):
                                 continue
                 self.start = False
             else:
+                for obstacle in obstacle_list:
+                    obstacle_list.remove(obstacle)
                 break
             
 

@@ -133,3 +133,7 @@ class Dirt:
     def cleaned(self):
         for entity in self.body_entities:
             entity.undraw()
+
+def clear_obstacles():
+    obstacle_list = []
+    docking_stations = []

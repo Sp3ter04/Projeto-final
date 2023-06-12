@@ -1,5 +1,5 @@
 from graphics import *
-from universal_functions import *
+from universal_functions import generate_random_obstacles
 from waiter import Waiter23
 from obstacles import *
 
