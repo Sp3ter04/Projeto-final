@@ -160,7 +160,7 @@ class Waiter1(Waiter):
     def __init__(self, radius, anchor, tolerance, speed, win):
         super().__init__(radius, anchor, tolerance, speed, win)
         self.grid = initialize_algorithm(
-            self.cell_width, obstacle_list, self.win, self.cell_width * 3, self.cell_width * 1.7, self.cell_width * 2)[0]
+            self.cell_width, obstacle_list, self.win, self.cell_width * 2.8, self.cell_width * 1.7, self.cell_width * 2)[0]
         self.draw()
 
 
@@ -228,7 +228,10 @@ class Waiter23(Waiter):
                                 spot_anchor[0] + self.cell_width/2, spot_anchor[1] + self.cell_width/2)
                             if self.battery <= 250:
                                 self.low_battery(docking_stations)
-                            self.move_with_shortest_path(target, dirty_spots)
+                            try:
+                                self.move_with_shortest_path(target, dirty_spots)
+                            except:
+                                continue
                 self.start = False
             else:
                 break
