@@ -3,20 +3,21 @@ from math import cos, sin
 from shortest_path import *
 from universal_functions import *
 from obstacles import *
+from button import Button
 
 LED_GREEN = color_rgb(17, 207, 48)
 LED_BLUE = "blue"
 LED_RED = "red"
 class Waiter:
-    def __init__(self, radius, anchor, tolerance, speed, win):
+    def __init__(self, radius, tolerance, speed, docking_stations, win):
         self.win = win
-        self.color = color_rgb(41, 39, 39)
         self.radius = radius
-        self.anchor = Point(anchor[0], anchor[1])
+        self.docking_stations = docking_stations
+        self.anchor = self.docking_stations[0].anchor
         self.tolerance = tolerance
         self.speed = speed
         self.body = Circle(self.anchor, self.radius)
-        self.body.setFill(self.color)
+        self.body.setFill(color_rgb(41, 39, 39))
         self.outline = Circle(self.anchor, self.radius * 0.95)
         self.outline.setFill("gray")
         self.quit = False
@@ -24,6 +25,17 @@ class Waiter:
         self.cell_width = self.radius / 2
         self.battery = 2000
         self.body_entities = [self.body, self.outline]
+        self.get_buttons()
+
+    def get_buttons(self):
+        self.start_button = Button(Point(self.radius, 100.5 - self.radius), Point(
+            self.radius + 8, 100), color_rgb(41, 39, 39), color_rgb(184, 162, 125), "Start", color_rgb(41, 39, 39), 13)
+        self.quit_button = Button(Point(0, 100.5 - self.radius), Point(
+            self.radius, 100), color_rgb(41, 39, 39), color_rgb(234, 16, 9), "X", color_rgb(41, 39, 39), 13)
+        self.buttons = [self.start_button, self.quit_button]
+        for button in self.buttons:
+            button.body.setWidth(1)
+            button.draw(self.win)
 
     def draw(self):
         for entity in self.body_entities:
@@ -37,27 +49,21 @@ class Waiter:
         dirty_spots = []
         while not self.start:
             mouse_click = self.win.getMouse()
-            if mouse_click.getX() >= 90 and mouse_click.getY() <= 10:
+            if self.quit_button.clicked(mouse_click):
                     for spot in dirty_spots:
-                        spot.body.undraw()
+                        spot.cleaned()
                     self.quit = True
                     break
-            if mouse_click.getX() <= 10 and mouse_click.getY() >= 90:
+            if self.start_button.clicked(mouse_click):
                 self.start = True
             else:
-                path_to_dirt = run_algorithm(self.cell_width, self.grid, (self.body.getCenter().getX(),
+                path_to_dirt = run_algorithm(self.cell_width, self.grid, (self.body.getCenter().getX(), 
                                             self.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()))
                 if path_to_dirt == None:
-                    error_message = Text(
-                        Point(50, 94), "Target Cannot be Reached")
-                    error_message.draw(self.win)
-                    time.sleep(0.8)
-                    error_message.undraw()
+                    display_error_message("Target Cannot be Reached", self.win)
                     continue
-
                 dirt = Dirt(mouse_click, self, self.win)
                 dirty_spots.append(dirt)
-
         return dirty_spots
     
     def move_with_shortest_path(self, target, dirty_spots=[]):
@@ -88,8 +94,8 @@ class Waiter:
     def get_vector(self, target):
         delta_x, delta_y, distance = get_distance(
             target, self.body.getCenter())
-        dx = delta_x / (distance * 2 + 0.01)
-        dy = delta_y / (distance * 2 + 0.01)
+        dx = delta_x / (distance * 2.5 + 0.01)
+        dy = delta_y / (distance * 2.5 + 0.01)
         return dx, dy
 
     def continue_moving(self, target):
@@ -106,23 +112,19 @@ class Waiter:
         while spiral < 0.4 * self.radius:
             x = dirt_center.getX() + spiral * cos(theta)
             y = dirt_center.getY() + spiral * sin(theta)
-
             dx = x - self.body.getCenter().getX()
             dy = y - self.body.getCenter().getY()
-
             for entity in self.body_entities:
                 entity.move(dx, dy)
-
             theta += 0.30
             spiral += 0.02
-
-            update(self.speed / 2)
+            update(self.speed / 2.5)
         
 
-    def move_to_docking(self, docking_stations):
+    def move_to_docking(self):
         station_paths = {}
         path_sizes = []
-        for station in docking_stations:
+        for station in self.docking_stations:
             path = run_algorithm(self.cell_width, self.grid, (self.body.getCenter().getX(), 
                                 self.body.getCenter().getY()), (station.anchor.getX(), station.anchor.getY()))
             station_paths.update({station : path})
@@ -134,7 +136,7 @@ class Waiter:
         shortest_index = path_sizes.index(min(path_sizes))
         for point in list(station_paths.values())[shortest_index]:
             self.move(Point(point.x_coord + self.radius / 4, point.y_coord + self.radius / 4))
-        self.move(docking_stations[shortest_index].anchor)
+        self.move(self.docking_stations[shortest_index].anchor)
 
     def collision(self, entity_list, tolerance=0):
         collisions = []
@@ -157,8 +159,8 @@ class Waiter:
 
 
 class Waiter1(Waiter):
-    def __init__(self, radius, anchor, tolerance, speed, win):
-        super().__init__(radius, anchor, tolerance, speed, win)
+    def __init__(self, radius, tolerance, speed, docking_stations, win):
+        super().__init__(radius, tolerance, speed, docking_stations, win)
         self.grid = initialize_algorithm(
             self.cell_width, obstacle_list, self.win, self.cell_width * 2.8, self.cell_width * 1.7, self.cell_width * 2)[0]
         self.draw()
@@ -174,12 +176,12 @@ class Waiter1(Waiter):
 
 
 
-    def clean_room(self, docking_stations):
+    def clean_room(self):
         while True:
             dirty_spots = self.get_dirty_spots()            
             if not self.quit:
                 self.clean_dirty_spots(dirty_spots)
-                self.move_to_docking(docking_stations)
+                self.move_to_docking()
                 self.start = False
             else:
                 break
@@ -187,8 +189,8 @@ class Waiter1(Waiter):
 
 
 class Waiter23(Waiter):
-    def __init__(self, radius, anchor, tolerance, speed, win):
-        super().__init__( radius, anchor, tolerance, speed, win)
+    def __init__(self, radius, tolerance, speed, docking_stations, win):
+        super().__init__(radius, tolerance, speed, docking_stations, win)
         self.grid, self.non_obstacle_grid = initialize_algorithm(
             self.cell_width, obstacle_list, self.win, self.cell_width * 2, self.cell_width * 2)
         self.latest_collision = None
@@ -198,17 +200,17 @@ class Waiter23(Waiter):
         for entity in self.body_entities:
             entity.draw(self.win)
 
-    def low_battery(self, docking_stations):
+    def low_battery(self):
         return_pos = self.body.getCenter()
         self.charge_led.setFill(LED_RED)
-        self.move_to_docking(docking_stations)
+        self.move_to_docking()
         self.charge_led.setFill(LED_BLUE)
         time.sleep(2)
         self.battery = 2000
         self.charge_led.setFill(LED_GREEN)
         self.move_with_shortest_path(return_pos)
 
-    def clean_whole_room(self, docking_stations):
+    def clean_whole_room(self):
         while True:
             dirty_spots = self.get_dirty_spots()
             if not self.quit:
@@ -227,7 +229,7 @@ class Waiter23(Waiter):
                             target = Point(
                                 spot_anchor[0] + self.cell_width/2, spot_anchor[1] + self.cell_width/2)
                             if self.battery <= 250:
-                                self.low_battery(docking_stations)
+                                self.low_battery()
                             try:
                                 self.move_with_shortest_path(target, dirty_spots)
                             except:

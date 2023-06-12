@@ -42,3 +42,20 @@ def square_square_interception(p1, width_1, p2, width_2, tolerance=0):
         return True
     else:
         return False
+    
+def display_error_message(message, win):
+    outer_rectangle = Rectangle(Point(30, 88), Point(70, 100))
+    outer_rectangle.setFill(color_rgb(184, 162, 125))
+    inner_rectangle = Rectangle(Point(32, 90), Point(68, 98))
+    inner_rectangle.setFill(color_rgb(217, 202, 165))
+    error_message = Text(Point(50, 94), message)
+    error_message.setFace("times roman")
+    error_message.setStyle("bold")
+    error_message.setSize(14)
+    error_message.setTextColor(color_rgb(65, 66, 69))
+    error_box = [outer_rectangle, inner_rectangle, error_message]
+    for entity in error_box:
+        entity.draw(win)
+    time.sleep(0.8)
+    for entity in error_box:
+        entity.undraw()

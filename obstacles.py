@@ -1,8 +1,6 @@
 from graphics import *
-# from waiter import *
+from random import randint
 
-#TABLE_RADIUS
-#CHAIR_SIDE
 obstacle_list = []
 docking_stations = []
 
@@ -111,7 +109,7 @@ class Dirt:
         self.body = Circle(self.anchor, self.radius)
         self.body.setFill(color_rgb(250, 249, 254))
         self.body_entities = [self.body]
-        self.get_egg()
+        self.get_yolk()
         self.draw(win)
         self.shape = "circle"
         waiter.undraw()
@@ -120,11 +118,13 @@ class Dirt:
         #     entity.undraw()
         #     entity.draw(win)
 
-    def get_egg(self):
-        center = Point(self.anchor.getX() + 0.18 * self.radius, self.anchor.getY())
-        egg = Circle(center, self.radius * 0.4)
-        egg.setFill(color_rgb(250, 129, 36))
-        self.body_entities.append(egg)
+    def get_yolk(self):
+        yolk_y_positions = [-0.18 * self.radius, 0, 0.18 * self.radius]
+        yolk_x_positions = [-0.18 * self.radius, 0.18 * self.radius]
+        center = Point(self.anchor.getX() + yolk_x_positions[randint(0, 1)], self.anchor.getY() + yolk_y_positions[randint(0, 2)])
+        yolk = Circle(center, self.radius * 0.4)
+        yolk.setFill(color_rgb(250, 129, 36))
+        self.body_entities.append(yolk)
 
     def draw(self, win):
         for entity in self.body_entities:

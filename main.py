@@ -3,22 +3,16 @@ from obstacles import *
 from waiter import *
 from shortest_path import *
 from math import sqrt
-from random import randrange, randint
+from random import randint
 
 
 #Settings - create a button in the main menu
 
 
 TABLE_RADIUS = 12
-TABLE_COLOR = "brown"
-
 CHAIR_SIDE = 6
-CHAIR_COLOR = "green"
-
-WAITER_COLOR = "gray"
 WAITER_RADIUS = 4
-WAITER_ANCHOR = (WAITER_RADIUS * 1.2, WAITER_RADIUS * 1.2)
-WAITER_SPEED = 100
+WAITER_SPEED = 120
 
 DOCKING_RADIUS = WAITER_RADIUS * 1.2
 
@@ -83,23 +77,21 @@ def main():
     win = GraphWin("Trial version", 800, 800)
     win.setCoords(0, 0, 100, 100)
     win.setBackground(color_rgb(61, 36, 1))
-    carpet = Rectangle(Point(4, 4), Point(96, 96))
+    carpet = Rectangle(Point(WAITER_RADIUS, WAITER_RADIUS), Point(100 - WAITER_RADIUS, 100 - WAITER_RADIUS))
     carpet.setFill(color_rgb(217, 202, 165))
     carpet.draw(win)
     docking1 = Docking((DOCKING_RADIUS, DOCKING_RADIUS), DOCKING_RADIUS)
-    docking1.draw(win)
     docking2 = Docking((100 - DOCKING_RADIUS, 100 - DOCKING_RADIUS), DOCKING_RADIUS)
-    docking2.draw(win)
+    for station in docking_stations:
+        station.draw(win)
     generate_random_obstacles(8)
     for obstacle in obstacle_list:
         obstacle.draw(win)
-    waiter = Waiter1(WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
-                    WAITER_SPEED, win)
-    waiter.clean_room(docking_stations)
+    waiter = Waiter1(WAITER_RADIUS, TOLERANCE, WAITER_SPEED, docking_stations, win)
+    waiter.clean_room()
     waiter.undraw()
-    waiterb = Waiter23(WAITER_RADIUS, WAITER_ANCHOR, TOLERANCE,
-                     WAITER_SPEED, win)
-    waiterb.clean_whole_room(docking_stations)
+    waiterb = Waiter23(WAITER_RADIUS, TOLERANCE, WAITER_SPEED, docking_stations, win)
+    waiterb.clean_whole_room()
     win.close()
 
 main()
