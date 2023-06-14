@@ -9,7 +9,8 @@ LED_GREEN = color_rgb(17, 207, 48)
 LED_BLUE = "blue"
 LED_RED = "red"
 class Waiter:
-    def __init__(self, radius, tolerance, speed, docking_stations, win):
+    def __init__(self, radius, tolerance, speed, docking_stations, win, show_grid):
+        self.show_grid = show_grid
         self.win = win
         self.radius = radius
         self.docking_stations = docking_stations
@@ -27,11 +28,20 @@ class Waiter:
         self.body_entities = [self.body, self.outline]
         self.get_buttons()
 
+    def grid_show(self):
+        if self.show_grid:
+            for row in self.grid:
+                for spot in row:
+                    if spot.ask_obstacle():
+                        spot.get_square(self.win, "black")
+
     def get_buttons(self):
         self.start_button = Button(Point(self.radius, 100.5 - self.radius), Point(
-            self.radius + 8, 100), color_rgb(41, 39, 39), color_rgb(184, 162, 125), "Start", color_rgb(41, 39, 39), 13)
+            self.radius + 8, 100), color_rgb(41, 39, 39), color_rgb(184, 162, 125), 
+            "Start", color_rgb(41, 39, 39), 13)
         self.quit_button = Button(Point(0, 100.5 - self.radius), Point(
-            self.radius, 100), color_rgb(41, 39, 39), color_rgb(234, 16, 9), "X", color_rgb(41, 39, 39), 13)
+            self.radius, 100), color_rgb(41, 39, 39), color_rgb(234, 16, 9), "X", 
+            color_rgb(41, 39, 39), 13)
         self.buttons = [self.start_button, self.quit_button]
         for button in self.buttons:
             button.body.setWidth(1)
@@ -60,7 +70,7 @@ class Waiter:
                 path_to_dirt = run_algorithm(self.cell_width, self.grid, (self.body.getCenter().getX(), 
                                             self.body.getCenter().getY()), (mouse_click.getX(), mouse_click.getY()))
                 if path_to_dirt == None:
-                    display_error_message("Target Cannot be Reached", self.win)
+                    display_error_message("O ponto sujo não pode \n interceptar obstáculos", self.win)
                     continue
                 dirt = Dirt(mouse_click, self, self.win)
                 dirty_spots.append(dirt)
@@ -159,10 +169,11 @@ class Waiter:
 
 
 class Waiter1(Waiter):
-    def __init__(self, radius, tolerance, speed, docking_stations, win):
-        super().__init__(radius, tolerance, speed, docking_stations, win)
+    def __init__(self, radius, tolerance, speed, docking_stations, win, show_grid):
+        super().__init__(radius, tolerance, speed, docking_stations, win, show_grid)
         self.grid = initialize_algorithm(
             self.cell_width, obstacle_list, self.win, self.cell_width * 2.7, self.cell_width * 1.3, self.cell_width * 2)[0]
+        self.grid_show()
         self.draw()
 
 
@@ -191,16 +202,17 @@ class Waiter1(Waiter):
 
 
 class Waiter23(Waiter):
-    def __init__(self, radius, tolerance, speed, docking_stations, win):
-        super().__init__(radius, tolerance, speed, docking_stations, win)
+    def __init__(self, radius, tolerance, speed, docking_stations, win, show_grid, show_cleaned):
+        super().__init__(radius, tolerance, speed, docking_stations, win, show_grid)
+        self.show_cleaned = show_cleaned
         self.grid, self.non_obstacle_grid = initialize_algorithm(
             self.cell_width, obstacle_list, self.win, self.cell_width * 2, self.cell_width * 2)
+        self.grid_show()
         self.latest_collision = None
         self.charge_led = Circle(self.body.getCenter(), self.radius * 0.35)
         self.charge_led.setFill(LED_GREEN)
         self.body_entities.append(self.charge_led)
-        for entity in self.body_entities:
-            entity.draw(self.win)
+        self.draw()
 
     def low_battery(self):
         return_pos = self.body.getCenter()
@@ -225,7 +237,8 @@ class Waiter23(Waiter):
                             for second_neighbor in neighbor.neighbors:
                                 if self.collision([second_neighbor]):
                                     second_neighbor.clean = True
-                                    #second_neighbor.get_square(self.win, "blue")
+                                    if self.show_cleaned:
+                                        square = second_neighbor.get_square(self.win, "blue")
                         if not spot.clean:
                             spot_anchor = (spot.anchor.getX(), spot.anchor.getY())
                             target = Point(
@@ -236,6 +249,7 @@ class Waiter23(Waiter):
                                 self.move_with_shortest_path(target, dirty_spots)
                             except:
                                 continue
+                self.move_to_docking()
                 self.start = False
             else:
                 for obstacle in obstacle_list:

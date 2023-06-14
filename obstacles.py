@@ -121,7 +121,8 @@ class Dirt:
     def get_yolk(self):
         yolk_y_positions = [-0.18 * self.radius, 0, 0.18 * self.radius]
         yolk_x_positions = [-0.18 * self.radius, 0.18 * self.radius]
-        center = Point(self.anchor.getX() + yolk_x_positions[randint(0, 1)], self.anchor.getY() + yolk_y_positions[randint(0, 2)])
+        center = Point(self.anchor.getX() + yolk_x_positions[randint(0, 1)], 
+                       self.anchor.getY() + yolk_y_positions[randint(0, 2)])
         yolk = Circle(center, self.radius * 0.4)
         yolk.setFill(color_rgb(250, 129, 36))
         self.body_entities.append(yolk)

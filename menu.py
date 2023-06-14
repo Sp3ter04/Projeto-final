@@ -2,6 +2,8 @@ from graphics import *
 from universal_functions import *
 from obstacles import *
 from button import Button
+from settings import *
+import subprocess
 
 TABLE_RADIUS = 12
 CHAIR_SIDE = 6
@@ -13,7 +15,7 @@ TOLERANCE = 0.5
 
 class Menu:
     def __init__(self):
-        self.win = GraphWin("Trial version", 800, 800)
+        self.win = GraphWin("Menu", 800, 800)
         self.win.setCoords(0, 0, 100, 100)
         self.win.setBackground(color_rgb(61, 36, 1))
         self.get_decorations()
@@ -61,13 +63,18 @@ class Menu:
         self.quit_button = Button(Point(0, 100.5 - WAITER_RADIUS), Point(
             WAITER_RADIUS, 100), color_rgb(41, 39, 39), color_rgb(234, 16, 9), "X", color_rgb(41, 39, 39), 13)
         self.quit_button.body.setWidth(1)
-        self.buttons = [self.quit_button, self.first_imp_button, self.second_imp_button, self.third_imp_button]
+        self.settings_button = Button(Point(4, 96.5), Point(20, 100), color_rgb(250, 249, 254), color_rgb(217, 202, 165),
+            "Definições", color_rgb(41, 39, 39), 13)
+        self.settings_button.body.setWidth(2)
+        self.buttons = [self.quit_button, self.settings_button, self.first_imp_button, self.second_imp_button, self.third_imp_button]
 
     def get_button_press(self):
         while True:
             mouse_click = self.win.getMouse()
             if self.quit_button.clicked(mouse_click):
                 return "quit"
+            elif self.settings_button.clicked(mouse_click):
+                subprocess.run(["python", "settings.py"])
             elif self.first_imp_button.clicked(mouse_click):
                 return "first imp"
             elif self.second_imp_button.clicked(mouse_click):

@@ -2,17 +2,21 @@ from graphics import *
 from universal_functions import generate_random_obstacles
 from waiter import Waiter23
 from obstacles import *
+from settings import get_settings
 
-TABLE_RADIUS = 12
-CHAIR_SIDE = 6
-WAITER_RADIUS = 4
-WAITER_SPEED = 120
-DOCKING_RADIUS = WAITER_RADIUS * 1.2
-TOLERANCE = 0.5
+# TABLE_RADIUS = 12
+# CHAIR_SIDE = 6
+# WAITER_RADIUS = 4
+# WAITER_SPEED = 200
+# DOCKING_RADIUS = WAITER_RADIUS * 1.2
+# TOLERANCE = 0.5
+# SHOW_GRID = False
+# SHOW_CLEANED = True
 
 
 def second_implementation():
-    win = GraphWin("Trial version", 800, 800)
+    TABLE_RADIUS, CHAIR_SIDE, WAITER_RADIUS, WAITER_SPEED, SHOW_GRID, SHOW_CLEANED, DOCKING_RADIUS, TOLERANCE = get_settings()
+    win = GraphWin("Segunda Implementação", 800, 800)
     win.setCoords(0, 0, 100, 100)
     win.setBackground(color_rgb(61, 36, 1))
     carpet = Rectangle(Point(WAITER_RADIUS, WAITER_RADIUS),
@@ -28,7 +32,7 @@ def second_implementation():
     for obstacle in obstacle_list:
         obstacle.draw(win)
     waiter = Waiter23(WAITER_RADIUS, TOLERANCE,
-                      WAITER_SPEED, docking_stations, win)
+                      WAITER_SPEED, docking_stations, win, SHOW_GRID, SHOW_CLEANED)
     waiter.clean_whole_room()
     win.close()
 

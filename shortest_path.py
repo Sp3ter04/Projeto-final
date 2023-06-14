@@ -37,12 +37,15 @@ class Spot:
         else:
             return False 
 
-    def get_square(self, win, outline):
+    def get_square(self, win, outline, mode=1):
         self.square = Rectangle(Point(self.x_coord, self.y_coord), 
                            Point(self.x_coord + self.width, self.y_coord + self.width))
         
-        self.square.setOutline(outline)
-        self.square.draw(win)
+        if mode == 1:
+            self.square.setOutline(outline)
+            self.square.draw(win)
+        else:
+            return self.square
 
     def update_neighbors(self, grid):
         self.neighbors = []
