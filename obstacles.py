@@ -102,6 +102,11 @@ class Docking:
         for entity in self.body_entities:
             entity.draw(win)
 
+class DirtPlaceHolder:
+    def __init__(self, anchor, waiter_radius):
+        self.anchor = anchor
+        self.radius = waiter_radius * 1.2
+        self.shape = "circle"
 class Dirt:
     def __init__(self, anchor, waiter, win):
         self.anchor = anchor
@@ -114,9 +119,6 @@ class Dirt:
         self.shape = "circle"
         waiter.undraw()
         waiter.draw()
-        # for entity in waiter.body_entities:
-        #     entity.undraw()
-        #     entity.draw(win)
 
     def get_yolk(self):
         yolk_y_positions = [-0.18 * self.radius, 0, 0.18 * self.radius]

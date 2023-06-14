@@ -2,7 +2,11 @@ from button import *
 from graphics import *
 
 class third_imp_menu:
-    def __init__(self):
+    def __init__(self, first_button_text, second_button_text, first_button_return, second_button_return):
+        self.first_button_text = first_button_text
+        self.second_button_text = second_button_text
+        self.first_button_return = first_button_return
+        self.second_button_return = second_button_return
         self.win = GraphWin("Menu", 500, 500)
         self.win.setCoords(0, 0, 100, 100)
         self.win.setBackground(color_rgb(61, 36, 1))
@@ -32,9 +36,9 @@ class third_imp_menu:
 
     def get_buttons(self):
         self.random_button = Button(Point(20, 50), Point(80, 60), color_rgb(
-            250, 249, 254), color_rgb(217, 202, 165), "Obstáculos criados aleatoriamente", color_rgb(65, 66, 69), 13)
+            250, 249, 254), color_rgb(217, 202, 165), self.first_button_text, color_rgb(65, 66, 69), 13)
         self.file_button = Button(Point(20, 35), Point(80, 45), color_rgb(
-            250, 249, 254), color_rgb(217, 202, 165), "Obstáculos lidos de um ficheiro", color_rgb(65, 66, 69), 13)
+            250, 249, 254), color_rgb(217, 202, 165), self.second_button_text, color_rgb(65, 66, 69), 13)
         self.quit_button = Button(Point(0, 100.5 - 4), Point(
             4, 100), color_rgb(41, 39, 39), color_rgb(234, 16, 9), "X", color_rgb(41, 39, 39), 13)
         self.quit_button.body.setWidth(1)
@@ -48,7 +52,7 @@ class third_imp_menu:
                 return "quit"
             elif self.random_button.clicked(mouse_click):
                 self.win.close()
-                return "random"
+                return self.first_button_return
             elif self.file_button.clicked(mouse_click):
                 self.win.close()
-                return "file"
+                return self.second_button_return

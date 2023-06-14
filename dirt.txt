@@ -1,0 +1,5 @@
+Lista de Pontos de Maior Sujidade:
+35 65
+65 35
+20 80
+80 20

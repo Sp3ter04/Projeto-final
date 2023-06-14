@@ -1,0 +1,14 @@
+Tamanho da janela de simulacao sugerida:
+800 800
+Localizacao dos objectos:
+Mesa 20 20
+Mesa 80 80
+Mesa 50 50
+Cadeira 10 58
+Cadeira 58 10
+Cadeira 42 90
+Cadeira 90 42
+cadeira 90 10
+cadeira 10 90
+Dock 5 5 
+Dock 95 95

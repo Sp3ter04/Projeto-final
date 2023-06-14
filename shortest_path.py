@@ -37,65 +37,66 @@ class Spot:
         else:
             return False 
 
-    def get_square(self, win, outline, mode=1):
+    def get_square(self, win, outline):
         self.square = Rectangle(Point(self.x_coord, self.y_coord), 
                            Point(self.x_coord + self.width, self.y_coord + self.width))
+        self.square.setOutline(outline)
+        self.square.draw(win)
         
-        if mode == 1:
-            self.square.setOutline(outline)
-            self.square.draw(win)
-        else:
-            return self.square
+    def check_under(self, grid):
+        if self.row < self.num_rows - 1 \
+                and not grid[self.row + 1][self.col].ask_obstacle():
+            self.neighbors.append(grid[self.row + 1][self.col])
+            if self.col < self.num_rows - 1 \
+                    and not grid[self.row + 1][self.col + 1].ask_obstacle() \
+                    and not grid[self.row][self.col + 1].ask_obstacle():
+                self.neighbors.append(grid[self.row + 1][self.col + 1])
+                self.diagonal_neighbors.append(
+                    grid[self.row + 1][self.col + 1])
+            if self.col > 0 \
+                    and not grid[self.row + 1][self.col - 1].ask_obstacle() \
+                    and not grid[self.row][self.col - 1].ask_obstacle():
+                self.neighbors.append(grid[self.row + 1][self.col - 1])
+                self.diagonal_neighbors.append(
+                    grid[self.row + 1][self.col - 1])
+                
+    def check_over(self, grid):
+        if self.row > 0 \
+                and not grid[self.row - 1][self.col].ask_obstacle():
+            self.neighbors.append(grid[self.row - 1][self.col])
+            if self.col < self.num_rows - 1 \
+                    and not grid[self.row - 1][self.col + 1].ask_obstacle() \
+                    and not grid[self.row][self.col + 1].ask_obstacle():
+                self.neighbors.append(grid[self.row - 1][self.col + 1])
+                self.diagonal_neighbors.append(
+                    grid[self.row - 1][self.col + 1])
+            if self.col > 0 \
+                    and not grid[self.row - 1][self.col - 1].ask_obstacle() \
+                    and not grid[self.row][self.col - 1].ask_obstacle(): 
+                self.neighbors.append(grid[self.row - 1][self.col - 1])
+                self.diagonal_neighbors.append(
+                    grid[self.row - 1][self.col - 1])
+                
+    def check_left(self, grid):
+        if self.col > 0 \
+                and not grid[self.row][self.col - 1].ask_obstacle(): 
+            self.neighbors.append(grid[self.row][self.col - 1])
+
+    def check_right(self, grid):
+        if self.col < self.num_rows - 1 \
+                and not grid[self.row][self.col + 1].ask_obstacle():
+            self.neighbors.append(grid[self.row][self.col + 1])
 
     def update_neighbors(self, grid):
         self.neighbors = []
         self.diagonal_neighbors = []
-        # DOWN
-        if self.row < self.num_rows - 1 \
-        and not grid[self.row + 1][self.col].ask_obstacle():
-            self.neighbors.append(grid[self.row + 1][self.col])
-            # DOWN-RIGHT
-
-            if self.col < self.num_rows - 1 \
-            and not grid[self.row + 1][self.col + 1].ask_obstacle() \
-            and not grid[self.row][self.col + 1].ask_obstacle():
-                self.neighbors.append(grid[self.row + 1][self.col + 1])
-                self.diagonal_neighbors.append(grid[self.row + 1][self.col + 1])
-                # DOWN-LEFT
-
-            if self.col > 0 \
-            and not grid[self.row + 1][self.col - 1].ask_obstacle() \
-            and not grid[self.row][self.col - 1].ask_obstacle():                    
-                self.neighbors.append(grid[self.row + 1][self.col - 1])
-                self.diagonal_neighbors.append(grid[self.row + 1][self.col - 1])
-
-        if self.row > 0 \
-        and not grid[self.row - 1][self.col].ask_obstacle():  # UP                
-            self.neighbors.append(grid[self.row - 1][self.col])
-                # UP-RIGHT
-            if self.col < self.num_rows - 1 \
-            and not grid[self.row - 1][self.col + 1].ask_obstacle() \
-            and not grid[self.row][self.col + 1].ask_obstacle():                    
-                self.neighbors.append(grid[self.row - 1][self.col + 1])
-                self.diagonal_neighbors.append(grid[self.row - 1][self.col + 1])
+        self.check_under(grid)
+        self.check_over(grid)
+        self.check_left(grid)
+        self.check_right(grid)
 
 
-            if self.col > 0 \
-            and not grid[self.row - 1][self.col - 1].ask_obstacle() \
-            and not grid[self.row][self.col - 1].ask_obstacle():  # UP-LEFT                    
-                self.neighbors.append(grid[self.row - 1][self.col - 1])
-                self.diagonal_neighbors.append(grid[self.row - 1][self.col - 1])
-
-            # RIGHT
-        if self.col < self.num_rows - 1 \
-        and not grid[self.row][self.col + 1].ask_obstacle():
-            self.neighbors.append(grid[self.row][self.col + 1])
-
-        if self.col > 0 \
-        and not grid[self.row][self.col - 1].ask_obstacle():  # LEFT                
-            self.neighbors.append(grid[self.row][self.col - 1])
-
-    def check_occupation(self, obstacle_list, win, chair_precision, table_precision, border_precision, outline):
+    def check_occupation(self, obstacle_list, win, chair_precision, table_precision, border_precision):
         occupation = []
         if self.ask_limit(border_precision):
             occupation.append("limit")
@@ -104,17 +105,16 @@ class Spot:
                 if obstacle.shape == "square":
                     if square_square_interception((self.x_coord, self.y_coord), self.width,
                                                 (obstacle.anchor.getX(), obstacle.anchor.getY()), 
-                                                obstacle.width, chair_precision): #self.width * 3):
+                                                obstacle.width, chair_precision):
                         occupation.append(obstacle)
                 elif obstacle.shape == "circle":
                     if circle_square_interception((self.x_coord, self.y_coord), self.width, 
                                                 (obstacle.anchor.getX(), obstacle.anchor.getY()), 
-                                                obstacle.radius, table_precision): #self.width * 1.7):
+                                                obstacle.radius, table_precision):
                         occupation.append(obstacle)
                     
         if len(occupation) != 0:
             self.obstacle_spot()
-            #self.get_square(win, outline)
             
                         
         
@@ -156,26 +156,21 @@ def algorithm(grid, start, end):
     g_value = {spot: float("inf") for row in grid for spot in row}
     g_value[start] = 0
     f_value = {spot: float("inf") for row in grid for spot in row}
-
     open_set_hash = {start}
-
     while not open_set.empty():
         current = open_set.get()[2]
         open_set_hash.remove(current)
-
         if current == end:
             path_to_dirt = []
             while current in came_from:
                 current = came_from[current]
                 path_to_dirt.insert(0, current)
             return path_to_dirt
-        
         for neighbor in current.neighbors:
             if neighbor not in current.diagonal_neighbors:
                 temp_g_value = g_value[current] + 1
             else:
                 temp_g_value = g_value[current] + 1.4
-
             if temp_g_value < g_value[neighbor]:
                 came_from[neighbor] = current
                 g_value[neighbor] = temp_g_value
@@ -195,31 +190,33 @@ def get_spot(point, cell_width):
     return row, col
 
 def initialize_algorithm(cell_width, obstacle_list, win, chair_precision=0, table_precision=0, border_precision=0):
-        grid = grid_maker(100, cell_width)
-        non_obstacle_grid = []
-        turn = 1
-        count = 0
-        outline_collors = ["black", "red",
-                           "lightgreen", "blue", "yellow", "pink"]
-        outline = outline_collors[randint(0, 5)]
-        for row in grid:
-            for spot in row:
-                spot.check_occupation(obstacle_list, win, chair_precision, table_precision, border_precision, outline)
-        for row in grid:
-            for spot in row:
-                spot.update_neighbors(grid)
-        for row in grid:
-            non_obstacle_grid.append([])
-            for spot in row:
-                if not spot.ask_obstacle():
-                    if turn > 0:
-                        non_obstacle_grid[grid.index(row)].append(spot)
-                    else:
-                        non_obstacle_grid[grid.index(row)].insert(0, spot)
-            if count % 4:
-                turn *= -1
-            count += 1
-        return grid, non_obstacle_grid
+    grid = grid_maker(100, cell_width)
+    for row in grid:
+        for spot in row:
+            spot.check_occupation(obstacle_list, win, chair_precision, table_precision, border_precision)
+    for row in grid:
+        for spot in row:
+            spot.update_neighbors(grid)
+    non_obstacle_grid = non_obstacle_gridmaker(grid)
+    return grid, non_obstacle_grid
+
+
+def non_obstacle_gridmaker(grid):
+    turn = 1
+    count = 0
+    non_obstacle_grid = []
+    for row in grid:
+        non_obstacle_grid.append([])
+        for spot in row:
+            if not spot.ask_obstacle():
+                if turn > 0:
+                    non_obstacle_grid[grid.index(row)].append(spot)
+                else:
+                    non_obstacle_grid[grid.index(row)].insert(0, spot)
+        if count % 4:
+            turn *= -1
+        count += 1
+    return non_obstacle_grid
     
 
 def run_algorithm(cell_width, grid, start_point, end_point): 

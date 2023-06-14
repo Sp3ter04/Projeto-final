@@ -1,5 +1,5 @@
 from graphics import *
-from universal_functions import generate_random_obstacles
+from universal_functions import default_restaurant_generator
 from waiter import Waiter23
 from obstacles import *
 from settings import get_settings
@@ -28,11 +28,10 @@ def second_implementation():
                        DOCKING_RADIUS), DOCKING_RADIUS)
     for station in docking_stations:
         station.draw(win)
-    generate_random_obstacles(8, TABLE_RADIUS, CHAIR_SIDE, WAITER_RADIUS)
+    default_restaurant_generator(TABLE_RADIUS, CHAIR_SIDE)
     for obstacle in obstacle_list:
         obstacle.draw(win)
-    waiter = Waiter23(WAITER_RADIUS, TOLERANCE,
-                      WAITER_SPEED, docking_stations, win, SHOW_GRID, SHOW_CLEANED)
+    waiter = Waiter23(WAITER_RADIUS, TOLERANCE, WAITER_SPEED, docking_stations, win, SHOW_GRID, SHOW_CLEANED)
     waiter.clean_whole_room()
     win.close()
 

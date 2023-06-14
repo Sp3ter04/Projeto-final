@@ -177,8 +177,8 @@ class SettingsMenu:
                      f"TABLE_SIDE : {self.current_settings[1]}\n",
                       f"ROBOT_RADIUS : {self.current_settings[2]}\n",
                        f"ROBOT_SPEED : {self.current_settings[3]}\n",
-                        f"SHOW_GRID : {self.current_settings[4]}\n" if self.current_settings[4] == 1 else "\n",
-                         f"SHOW_CLEANED : {self.current_settings[5]}\n" if self.current_settings[5] == 1 else "\n"]
+                         f"SHOW_GRID : {self.current_settings[4]}\n" if self.current_settings[4] == 1 else "SHOW_GRID : \n",
+                         f"SHOW_CLEANED : {self.current_settings[5]}\n" if self.current_settings[5] == 1 else "SHOW_CLEANED : \n"]
         try:
             with open("settings.txt", "w") as file:
                 for line in settings_list:
@@ -192,9 +192,11 @@ class SettingsMenu:
             mouse_click = self.win.getMouse()
             if self.quit_button.clicked(mouse_click):
                 self.win.close()
+                break
             elif self.save_button.clicked(mouse_click):
                 self.win.close()
                 self.update_settings()
+                break
             elif self.default_button.clicked(mouse_click):
                 self.back_to_default()
             else:

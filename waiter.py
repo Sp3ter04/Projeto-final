@@ -24,7 +24,7 @@ class Waiter:
         self.quit = False
         self.start = False
         self.cell_width = self.radius / 2
-        self.battery = 2000
+        self.battery = 8000
         self.body_entities = [self.body, self.outline]
         self.get_buttons()
 
@@ -202,8 +202,9 @@ class Waiter1(Waiter):
 
 
 class Waiter23(Waiter):
-    def __init__(self, radius, tolerance, speed, docking_stations, win, show_grid, show_cleaned):
+    def __init__(self, radius, tolerance, speed, docking_stations, win, show_grid, show_cleaned, dirty_places=[]):
         super().__init__(radius, tolerance, speed, docking_stations, win, show_grid)
+        self.dirty_places = dirty_places
         self.show_cleaned = show_cleaned
         self.grid, self.non_obstacle_grid = initialize_algorithm(
             self.cell_width, obstacle_list, self.win, self.cell_width * 2, self.cell_width * 2)
@@ -214,19 +215,37 @@ class Waiter23(Waiter):
         self.body_entities.append(self.charge_led)
         self.draw()
 
+    def get_dirt_from_file(self):
+        dirty_spots = []
+        for dirt in self.dirty_places:
+            dirty_spots.append(Dirt(dirt.anchor, self, self.win))
+        while not self.start:
+            mouse_click = self.win.getMouse()
+            if self.quit_button.clicked(mouse_click):
+                for spot in dirty_spots:
+                    spot.cleaned()
+                self.quit = True
+                break
+            if self.start_button.clicked(mouse_click):
+                self.start = True
+        return dirty_spots
+
     def low_battery(self):
         return_pos = self.body.getCenter()
         self.charge_led.setFill(LED_RED)
         self.move_to_docking()
         self.charge_led.setFill(LED_BLUE)
         time.sleep(2)
-        self.battery = 2000
+        self.battery = 8000
         self.charge_led.setFill(LED_GREEN)
         self.move_with_shortest_path(return_pos)
 
     def clean_whole_room(self):
         while True:
-            dirty_spots = self.get_dirty_spots()
+            if len(self.dirty_places) != 0:
+                dirty_spots = self.get_dirt_from_file()
+            else:
+                dirty_spots = self.get_dirty_spots()
             if not self.quit:
                 for row in self.non_obstacle_grid:
                     for spot in row:

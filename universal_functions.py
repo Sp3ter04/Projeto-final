@@ -63,24 +63,23 @@ def display_error_message(message, win):
         entity.undraw()
 
 
-def generate_random_obstacles(number, table_radius, chair_side, waiter_radius):
-    obstacle_types = ["chair", "chair", "chair",
-                      "table", "table", "table", "table", "table"]
+def generate_random_obstacles(number, table_radius, chair_side, waiter_radius, dirty_spots=[]):
     for obstacle in range(number):
         while True:
-            obstacle_type, obstacle_settings = obstacle_generator(
-                obstacle_types, table_radius, chair_side)
+            obstacle_type, obstacle_settings = obstacle_generator(table_radius, chair_side)
             obstacle_interception = generator_iterator(
-                obstacle_list, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
+                obstacle_list, obstacle_type, obstacle_settings, table_radius, chair_side, 1.4 * waiter_radius)
             docking_interception = generator_iterator(
-                docking_stations, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
-            if docking_interception or obstacle_interception:
+                docking_stations, obstacle_type, obstacle_settings, table_radius, chair_side, 1.1 * waiter_radius)
+            dirt_interception = generator_iterator(
+                dirty_spots, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
+            if docking_interception or obstacle_interception or dirt_interception:
                 continue
             if obstacle_type == "chair":
-                chair = Chair(obstacle_settings, chair_side)
+                Chair(obstacle_settings, chair_side)
                 break
             else:
-                table = Table(obstacle_settings, table_radius)
+                Table(obstacle_settings, table_radius)
                 break
 
 
@@ -94,8 +93,9 @@ def generator_iterator(entity_list, obstacle_type, obstacle_settings, table_radi
     return obstacle_interception
 
 
-def obstacle_generator(obstacle_types, table_radius, chair_side):
-    obstacle_type = obstacle_types[randint(0, 7)]
+def obstacle_generator(table_radius, chair_side):
+    obstacle_types = ["chair", "chair", "table", "table", "table", "table"]
+    obstacle_type = obstacle_types[randint(0, 5)]
     if obstacle_type == "chair":
         obstacle_settings = (randint(chair_side + 4, 96 - chair_side),
                              randint(chair_side + 4, 96 - chair_side))
@@ -124,3 +124,22 @@ def obstacle_interceptions(obstacle, obstacle_type, obstacle_settings, table_rad
             obstacle_interception = circle_circle_interception(
                 obstacle_settings, table_radius, current_center, table_radius, 2 * waiter_radius)
     return obstacle_interception
+
+def default_restaurant_generator(table_radius, chair_width):
+    Table((50, 25), table_radius)
+    Chair((47, 6), chair_width)
+    Chair((47, 38), chair_width)
+    Chair((31, 22), chair_width)
+    Chair((63, 22), chair_width)
+
+    Table((25, 75), table_radius)
+    Chair((22, 56), chair_width)
+    Chair((22, 88), chair_width)
+    Chair((6, 72), chair_width)
+    Chair((38, 72), chair_width)
+
+    Table((75, 75), table_radius)
+    Chair((72, 56), chair_width)
+    Chair((72, 88), chair_width)
+    Chair((56, 72), chair_width)
+    Chair((88, 72), chair_width)
