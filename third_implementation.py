@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 14 05:20:15 2023
+
+@authors: José Melícias & Vítor Clara
+"""
+
 from graphics import *
 from universal_functions import generate_random_obstacles
 from waiter import Waiter23
@@ -22,7 +29,7 @@ def get_obstacles(obstacles, chair_side, table_radius, docking_radius):
         elif obstacle[0].capitalize() == "Dock":
             Docking((float(obstacle[1]), float(obstacle[2])), docking_radius)
         else:
-            print("Erro ao carregar o objeto.\nOmitido")
+            print(f"Erro ao carregar o objeto {obstacle[0]}.\nOmitido")
 
 
 def get_file_obstacles(chair_side, table_radius, docking_radius):
@@ -39,7 +46,7 @@ def get_file_obstacles(chair_side, table_radius, docking_radius):
         for line in lines[3:]:
             if len(line.strip()) != 0:
                 obstacles.append(tuple(line.strip().split(" ")))
-            get_obstacles(obstacles, chair_side, table_radius, docking_radius)
+        get_obstacles(obstacles, chair_side, table_radius, docking_radius)
         return window_size
 
 def get_dirt_file(waiter_radius):
@@ -79,7 +86,7 @@ def menu_interpretation(waiter_radius, chair_side, docking_radius, table_radius)
             dirty_places = get_dirt_file(waiter_radius)
         else:
             dirty_places = []
-        generate_random_obstacles(8, table_radius, chair_side, waiter_radius, dirty_places)
+        generate_random_obstacles(14, table_radius, chair_side, waiter_radius, dirty_places)
         return dirty_places, None
 
 def window_generator(waiter_radius, win_size):

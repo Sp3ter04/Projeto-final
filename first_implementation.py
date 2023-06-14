@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 14 05:20:15 2023
+
+@authors: José Melícias & Vítor Clara
+"""
+
 from graphics import *
 from universal_functions import default_restaurant_generator
 from waiter import Waiter1
@@ -16,7 +23,7 @@ def first_implementation():
     docking2 = Docking((100 - DOCKING_RADIUS, 100 - DOCKING_RADIUS), DOCKING_RADIUS)
     for station in docking_stations:
         station.draw(win)
-    default_restaurant_generator(TABLE_RADIUS, CHAIR_SIDE)
+    default_restaurant_generator(TABLE_RADIUS, CHAIR_SIDE, WAITER_RADIUS)
     for obstacle in obstacle_list:
         obstacle.draw(win)
     waiter = Waiter1(WAITER_RADIUS, TOLERANCE, WAITER_SPEED, docking_stations, win, SHOW_GRID)

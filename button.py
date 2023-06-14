@@ -1,5 +1,11 @@
-from graphics import *
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 14 05:20:15 2023
 
+@authors: José Melícias & Vítor Clara
+"""
+
+from graphics import *
 
 class Button:
     def __init__(self, point1, point2, outer_color, inner_color, text, text_color, text_size):

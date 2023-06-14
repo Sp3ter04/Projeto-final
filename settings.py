@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 14 05:20:15 2023
+
+@authors: José Melícias & Vítor Clara
+"""
+
 from graphics import *
 from button import *
 

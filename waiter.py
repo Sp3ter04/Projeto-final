@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 14 05:20:15 2023
+
+@authors: José Melícias & Vítor Clara
+"""
+
 from graphics import *
 from math import cos, sin
 from shortest_path import *
@@ -250,29 +257,33 @@ class Waiter23(Waiter):
                 for row in self.non_obstacle_grid:
                     for spot in row:
                         spot.clean = False
-                for row in self.non_obstacle_grid[3::4]:
-                    for spot in row:
-                        for neighbor in spot.neighbors:
-                            for second_neighbor in neighbor.neighbors:
-                                if self.collision([second_neighbor]):
-                                    second_neighbor.clean = True
-                                    if self.show_cleaned:
-                                        square = second_neighbor.get_square(self.win, "blue")
-                        if not spot.clean:
-                            spot_anchor = (spot.anchor.getX(), spot.anchor.getY())
-                            target = Point(
-                                spot_anchor[0] + self.cell_width/2, spot_anchor[1] + self.cell_width/2)
-                            if self.battery <= 250:
-                                self.low_battery()
-                            try:
-                                self.move_with_shortest_path(target, dirty_spots)
-                            except:
-                                continue
+                self.move_through_grid(dirty_spots)
                 self.move_to_docking()
                 self.start = False
             else:
                 for obstacle in obstacle_list:
                     obstacle_list.remove(obstacle)
                 break
-            
+
+    
+    def move_through_grid(self, dirty_spots):
+        for row in self.non_obstacle_grid[3::4]:
+            for spot in row:
+                for neighbor in spot.neighbors:
+                    for second_neighbor in neighbor.neighbors:
+                        if self.collision([second_neighbor]):
+                            second_neighbor.clean = True
+                            if self.show_cleaned:
+                                square = second_neighbor.get_square(self.win, "blue")
+                if not spot.clean:
+                    spot_anchor = (spot.anchor.getX(), spot.anchor.getY())
+                    target = Point(
+                        spot_anchor[0] + self.cell_width/2, spot_anchor[1] + self.cell_width/2)
+                    if self.battery <= 250:
+                        self.low_battery()
+                    try:
+                        self.move_with_shortest_path(target, dirty_spots)
+                    except:
+                        continue
+
 

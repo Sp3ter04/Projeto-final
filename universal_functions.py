@@ -1,3 +1,10 @@
+
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 14 05:20:15 2023
+
+@authors: José Melícias & Vítor Clara
+"""
 from math import sqrt
 from graphics import *
 from random import randint
@@ -83,13 +90,44 @@ def generate_random_obstacles(number, table_radius, chair_side, waiter_radius, d
                 break
 
 
-def generator_iterator(entity_list, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius):
-    obstacle_interception = False
-    for entity in entity_list:
-        obstacle_interception = obstacle_interceptions(
+def create_station_placeholders(waiter_radius):
+    fake_entity_list = []
+    docking_1 = Rectangle(Point(0, 0), Point(
+            1.2 * waiter_radius, 1.2 * waiter_radius))
+    docking_1.anchor = Point(0, 0)
+    docking_1.shape = "square"
+    docking_1.width = 1.2 * waiter_radius
+    fake_entity_list.append(docking_1)
+    docking_2 = Rectangle(Point(100 - 1.2 * waiter_radius, 100 - 1.2 * waiter_radius), Point(100, 100))
+    docking_2.anchor = Point(
+        100 - 1.2 * waiter_radius, 100 - 1.2 * waiter_radius)
+    docking_2.shape = "square"
+    docking_2.width = 1.2 * waiter_radius
+    fake_entity_list.append(docking_2)
+    return fake_entity_list
+
+def interception_iterator(entities, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius):
+    interceptions = []
+    for entity in entities:
+        interception = obstacle_interceptions(
             entity, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
-        if obstacle_interception:
+        if interception:
+            interceptions.append(entity)
             break
+    if len(interceptions) != 0:
+        return True
+    return False
+
+def generator_iterator(entity_list, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius):
+    fake_entity_list = []
+    obstacle_interception = False
+    if len(entity_list) == 0:
+        fake_entity_list = create_station_placeholders(waiter_radius)
+    if len(fake_entity_list) == 0:
+        obstacle_interception = interception_iterator(entity_list, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
+    else:
+        obstacle_interception = interception_iterator(
+            fake_entity_list, obstacle_type, obstacle_settings, table_radius, chair_side, waiter_radius)
     return obstacle_interception
 
 
@@ -125,21 +163,27 @@ def obstacle_interceptions(obstacle, obstacle_type, obstacle_settings, table_rad
                 obstacle_settings, table_radius, current_center, table_radius, 2 * waiter_radius)
     return obstacle_interception
 
-def default_restaurant_generator(table_radius, chair_width):
-    Table((50, 25), table_radius)
-    Chair((47, 6), chair_width)
-    Chair((47, 38), chair_width)
-    Chair((31, 22), chair_width)
-    Chair((63, 22), chair_width)
+def default_restaurant_generator(table_radius, chair_width, waiter_radius):
+    tolerance = 2.5 * waiter_radius + chair_width
+    get_group((table_radius + tolerance, table_radius +
+              tolerance), table_radius, chair_width)
+    get_group((100 - table_radius - tolerance, table_radius + tolerance),
+              table_radius, chair_width)
+    get_group((table_radius + tolerance, 100 - table_radius - tolerance),
+              table_radius, chair_width)
+    get_group((100 - table_radius - tolerance, 100 - table_radius - tolerance),
+              table_radius, chair_width)
+    get_group((50, 50), table_radius, chair_width)
 
-    Table((25, 75), table_radius)
-    Chair((22, 56), chair_width)
-    Chair((22, 88), chair_width)
-    Chair((6, 72), chair_width)
-    Chair((38, 72), chair_width)
 
-    Table((75, 75), table_radius)
-    Chair((72, 56), chair_width)
-    Chair((72, 88), chair_width)
-    Chair((56, 72), chair_width)
-    Chair((88, 72), chair_width)
+def get_group(table, table_radius, chair_width):
+    chair1 = (table[0] - chair_width / 2, table[1] - table_radius - chair_width - 0.5)
+    chair2 = (table[0] - chair_width / 2, table[1] + table_radius + 0.5)
+    chair3 = (table[0] - table_radius - chair_width - 0.5, table[1] - chair_width / 2)
+    chair4 = (table[0] + table_radius + 0.5, table[1] - chair_width / 2)
+    Table(table, table_radius)
+    Chair(chair1, chair_width)
+    Chair(chair2, chair_width)
+    Chair(chair3, chair_width)
+    Chair(chair4, chair_width)
+

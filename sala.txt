@@ -4,6 +4,8 @@ Localizacao dos objectos:
 Mesa 20 20
 Mesa 80 80
 Mesa 50 50
+Mesa 28 75
+Mesa 75 28
 Cadeira 10 58
 Cadeira 58 10
 Cadeira 42 90
