@@ -85,4 +85,4 @@ class Menu:
 
 if __name__ == "__main__":
     menu = Menu()
-    menu.win.getMouse()
+    menu.get_button_press()
