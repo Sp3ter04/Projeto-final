@@ -9,7 +9,20 @@ from menu import *
 import subprocess
 
 def main():
+    """Corre o programa.
+    
+    Cria um menu e espera que o utilizador pressione um botão. Em seguida, 
+    verifica se o botão pressionado foi o de sair - nesse caso, quebra o loop e 
+    encerra o programa. Caso, pelo contrário, o utilizador tenha escolhido uma 
+    das implementações, corre-a como subprocess. Quando o subprocess é encerrado,
+    retorna ao menu.
+    """
     while True:
+        """O loop garante que, até o utilizador pressionar o botão de encerramento,
+        depois de cada implementação o menu é aberto novamente e a ordem do 
+        utilizador é recolhida.
+        """
+
         menu = Menu()
         user_order = menu.get_button_press()
         menu.win.close()
@@ -22,9 +35,14 @@ def main():
         elif user_order == "third imp":
             subprocess.run(["python", "third_implementation.py"])
 
+if __name__ == "__main__":
+    """Para evitar que o código seja corrido automaticamente caso este módulo seja
+    importado, define-se que este só será corrido caso o módulo seja corrido
+    diretamente.
+    """
 
-main()
-exit()
+    main()
+    exit()
 
 
 

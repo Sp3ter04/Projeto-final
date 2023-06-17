@@ -31,7 +31,7 @@ class Waiter:
         self.quit = False
         self.start = False
         self.cell_width = self.radius / 2
-        self.battery = 8000
+        self.battery = 9500
         self.body_entities = [self.body, self.outline]
         self.get_buttons()
 
@@ -43,11 +43,10 @@ class Waiter:
                         spot.get_square(self.win, "black")
 
     def get_buttons(self):
-        self.start_button = Button(Point(self.radius, 100.5 - self.radius), Point(
-            self.radius + 8, 100), color_rgb(41, 39, 39), color_rgb(184, 162, 125), 
+        self.start_button = Button(Point(3, 97.5), Point(
+            11, 100), color_rgb(41, 39, 39), color_rgb(184, 162, 125), 
             "Start", color_rgb(41, 39, 39), 13)
-        self.quit_button = Button(Point(0, 100.5 - self.radius), Point(
-            self.radius, 100), color_rgb(41, 39, 39), color_rgb(234, 16, 9), "X", 
+        self.quit_button = Button(Point(0, 97.5), Point(3, 100), color_rgb(41, 39, 39), color_rgb(234, 16, 9), "X", 
             color_rgb(41, 39, 39), 13)
         self.buttons = [self.start_button, self.quit_button]
         for button in self.buttons:
@@ -243,7 +242,7 @@ class Waiter23(Waiter):
         self.move_to_docking()
         self.charge_led.setFill(LED_BLUE)
         time.sleep(2)
-        self.battery = 8000
+        self.battery = 9500
         self.charge_led.setFill(LED_GREEN)
         self.move_with_shortest_path(return_pos)
 

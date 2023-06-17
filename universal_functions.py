@@ -187,3 +187,7 @@ def get_group(table, table_radius, chair_width):
     Chair(chair3, chair_width)
     Chair(chair4, chair_width)
 
+def get_carpet(win):
+    carpet = Rectangle(Point(3, 3), Point(97, 97))
+    carpet.setFill(color_rgb(217, 202, 165))
+    carpet.draw(win)
